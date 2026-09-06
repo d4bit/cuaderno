@@ -115,7 +115,12 @@
   .oferta .top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
   .oferta .top h3 { flex: 1; }
   .oferta .where { color: var(--muted); font-size: 15px; }
-  .oferta .notes { font-size: 15px; }
+  .facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; font-size: 14.5px; }
+  .facts dt { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; line-height: 1.9; }
+  .facts dd { margin: 0; }
+  ul.mini { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 15px; }
+  ul.mini li { display: flex; gap: 8px; align-items: flex-start; }
+  ul.mini li::before { content: ''; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 8px; opacity: .8; }
   .oferta .foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
   .fit { display: inline-flex; gap: 3px; align-items: center; }
   .fit i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); display: inline-block; }
@@ -237,7 +242,7 @@
     </div>
     <div class="f"><label>Encaje (1 a 5)</label><div class="stars" id="stars"></div><input type="hidden" name="encaje" value="3"></div>
     <div class="f"><label>Enlace</label><input name="enlace" type="url" inputmode="url" placeholder="https://…"></div>
-    <div class="f"><label>Notas para Fátima</label><textarea name="notas"></textarea></div>
+    <div class="f"><label>Puntos clave (uno por línea)</label><textarea name="notas" placeholder="Indefinido y jornada completa&#10;A 20 min de casa&#10;Piden 1 año de experiencia"></textarea></div>
     <div class="actions">
       <button type="button" class="btn danger sm" id="del-oferta" hidden>Borrar</button>
       <div class="right"><button type="button" class="btn ghost" value="cancel" id="cancel-oferta">Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
@@ -354,14 +359,11 @@
   function ofertaCard(o) {
     var h = '<article class="oferta" data-id="' + esc(o.id) + '"><div class="top"><h3>' + esc(o.puesto) + '</h3>' + pillEstado(o.estado) + '</div>';
     h += '<p class="where"><b>' + esc(o.entidad) + '</b>' + (o.localidad ? ' · ' + esc(o.localidad) : '') + (o.fecha ? ' · <span class="num">' + esc(o.fecha) + '</span>' : '') + '</p>';
-    var pills = [];
-    if (o.ambito) pills.push('<span class="pill accent">' + esc(o.ambito) + '</span>');
-    if (o.jornada) pills.push('<span class="pill">' + esc(o.jornada) + '</span>');
-    if (o.contrato) pills.push('<span class="pill">' + esc(o.contrato) + '</span>');
-    if (o.salario) pills.push('<span class="pill">' + esc(o.salario) + '</span>');
-    if (o.fuente) pills.push('<span class="pill info">' + esc(o.fuente) + '</span>');
-    if (pills.length) h += '<div class="pills">' + pills.join('') + '</div>';
-    if (o.notas) h += '<p class="notes">' + esc(o.notas) + '</p>';
+    if (o.ambito) h += '<div class="pills"><span class="pill accent">' + esc(o.ambito) + '</span></div>';
+    var facts = [['Jornada', o.jornada], ['Contrato', o.contrato], ['Salario', o.salario], ['Fuente', o.fuente]].filter(function (f) { return f[1]; });
+    if (facts.length) h += '<dl class="facts">' + facts.map(function (f) { return '<dt>' + f[0] + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>';
+    var notas = Array.isArray(o.notas) ? o.notas : String(o.notas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
+    if (notas.length) h += '<ul class="mini">' + notas.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
     h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
     return h;
   }
@@ -512,7 +514,8 @@
     var ambitos = []; (DATA.ofertas || []).forEach(function (x) { if (x.ambito && ambitos.indexOf(x.ambito) < 0) ambitos.push(x.ambito); });
     ['Residencial mayores', 'Discapacidad intelectual', 'Salud mental', 'Daño cerebral', 'Psicooncología', 'Atención temprana', 'Igualdad y violencia de género', 'Servicios sociales públicos', 'Acción social'].forEach(function (a) { if (ambitos.indexOf(a) < 0) ambitos.push(a); });
     document.getElementById('ambitos').innerHTML = ambitos.map(function (a) { return '<option value="' + esc(a) + '">'; }).join('');
-    ['entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace', 'notas'].forEach(function (k) { formO[k].value = o && o[k] ? o[k] : ''; });
+    ['entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { formO[k].value = o && o[k] ? o[k] : ''; });
+    formO.notas.value = o && o.notas ? (Array.isArray(o.notas) ? o.notas.join('\n') : o.notas) : '';
     if (!o) { var d = new Date(); formO.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); }
     setStars(o ? (+o.encaje || 3) : 3);
     dlgO.showModal();
@@ -520,7 +523,8 @@
   formO.addEventListener('submit', function (e) {
     e.preventDefault();
     var o = editingId ? DATA.ofertas.find(function (x) { return x.id === editingId; }) : { id: uid() };
-    ['provincia', 'estado', 'entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace', 'notas'].forEach(function (k) { var v = formO[k].value.trim(); if (v) o[k] = v; else delete o[k]; });
+    ['provincia', 'estado', 'entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { var v = formO[k].value.trim(); if (v) o[k] = v; else delete o[k]; });
+    var nl = formO.notas.value.split(/\n+/).map(function (x) { return x.trim().replace(/^[-•·]\s*/, ''); }).filter(Boolean); if (nl.length) o.notas = nl; else delete o.notas;
     o.encaje = +formO.encaje.value || 3;
     if (!editingId) { DATA.ofertas = DATA.ofertas || []; DATA.ofertas.push(o); }
     dlgO.close(); markDirty(); renderOfertas();
