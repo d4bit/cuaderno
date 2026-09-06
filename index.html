@@ -1,1 +1,635 @@
-<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>·</title><style>body{margin:0;background:#fbf8f8}</style>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#a85c6b">
+<title>Bitácora de Fátima</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='22,40 30,8 50,32' fill='%23a85c6b'/%3E%3Cpolygon points='78,40 70,8 50,32' fill='%23a85c6b'/%3E%3Ccircle cx='50' cy='58' r='34' fill='%23a85c6b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root {
+    --ground: #fbf8f8; --surface: #ffffff; --surface-2: #f3ecee; --ink: #2a2226; --muted: #7c6e72;
+    --line: #e8dde0; --accent: #a85c6b; --accent-ink: #ffffff; --accent-soft: #f4e3e7;
+    --ok: #3e7d5a; --ok-soft: #e3f0e8; --warn: #b7791f; --warn-soft: #f7ecd6; --bad: #a3403f; --bad-soft: #f6e1e0;
+    --info: #3f6c9c; --info-soft: #e3ecf6;
+    --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1b1619; --surface: #241e21; --surface-2: #2d2528; --ink: #f1e9eb; --muted: #a69aa0;
+      --line: #3a3034; --accent: #d48a9a; --accent-ink: #1b1619; --accent-soft: #3a2a30;
+      --ok: #7fc39c; --ok-soft: #22352b; --warn: #e0a94a; --warn-soft: #3b3020; --bad: #e08a89; --bad-soft: #3d2626;
+      --info: #8fb3dc; --info-soft: #24303f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; }
+  body { background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100dvh; }
+  main { max-width: 600px; margin: 0 auto; padding: 16px 18px 96px; display: grid; gap: 30px; }
+  h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.1; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 21px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; scroll-margin-top: 64px; }
+  h2 .n { font-size: 14px; font-weight: 600; color: var(--muted); font-family: var(--body); }
+  h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .muted { color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  section { display: grid; gap: 12px; scroll-margin-top: 60px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .stack { display: grid; gap: 10px; }
+
+  header { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: center; }
+  header .sub { color: var(--muted); font-size: 15px; grid-column: 1 / -1; }
+  header .cat { width: 60px; height: 60px; color: var(--accent); }
+  header .tools { grid-column: 1 / -1; display: flex; gap: 8px; }
+
+  /* Sticky menu */
+  nav.menu { position: sticky; top: 0; z-index: 5; margin: 0 -18px; padding: 8px 18px; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.menu ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  nav.menu ul::-webkit-scrollbar { display: none; }
+  nav.menu a { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); font-size: 14px; font-weight: 600; padding: 6px 11px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); white-space: nowrap; }
+  nav.menu a .c { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  nav.menu a.on { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  nav.menu a.on .c { color: var(--ground); opacity: .8; }
+
+  ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  ul.plain li { display: flex; gap: 12px; align-items: flex-start; }
+  .dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 9px; }
+
+  ul.check { list-style: none; margin: 0; padding: 0; display: grid; }
+  ul.check li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); }
+  ul.check li:first-child { border-top: 0; padding-top: 0; }
+  ul.check li:last-child { padding-bottom: 0; }
+  .box { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--line); display: grid; place-items: center; margin-top: 2px; font-size: 14px; font-weight: 700; }
+  .done .box { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .done .txt > span { color: var(--muted); }
+  .txt { display: grid; gap: 2px; flex: 1; }
+  .txt small { color: var(--muted); font-size: 14px; }
+
+  .pill { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink); line-height: 1.5; white-space: nowrap; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.bad { background: var(--bad-soft); color: var(--bad); }
+  .pill.accent { background: var(--accent-soft); color: var(--accent); }
+  .pill.info { background: var(--info-soft); color: var(--info); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .provs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .prov { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 8px 8px; display: grid; gap: 2px; text-align: center; cursor: pointer; font: inherit; color: inherit; }
+  .prov b { font-family: var(--display); font-size: 24px; line-height: 1; }
+  .prov span { font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+  .prov.hot { border-color: var(--accent); background: var(--accent-soft); }
+  .prov.hot b { color: var(--accent); }
+  .prov.zero b { color: var(--line); }
+  .prov.prio span::after { content: " ★"; color: var(--accent); }
+
+  .filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font: inherit; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .chip.on { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+
+  details.grp { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+  details.grp summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-family: var(--display); font-weight: 700; font-size: 17px; }
+  details.grp summary::-webkit-details-marker { display: none; }
+  details.grp summary .n { margin-left: auto; font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--muted); }
+  details.grp summary .chev { width: 18px; height: 18px; color: var(--muted); transition: transform .15s; }
+  details.grp[open] summary .chev { transform: rotate(90deg); }
+  details.grp .body { border-top: 1px solid var(--line); }
+
+  .oferta { display: grid; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); position: relative; }
+  .oferta:first-child { border-top: 0; }
+  .oferta .top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .oferta .top h3 { flex: 1; }
+  .oferta .where { color: var(--muted); font-size: 15px; }
+  .oferta .notes { font-size: 15px; }
+  .oferta .foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fit { display: inline-flex; gap: 3px; align-items: center; }
+  .fit i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); display: inline-block; }
+  .fit i.on { background: var(--accent); }
+  .fit span { font-size: 12px; color: var(--muted); margin-left: 4px; }
+  a.btn, button.btn { display: inline-block; font: inherit; font-weight: 600; font-size: 14px; color: var(--accent); text-decoration: none; padding: 6px 12px; border: 1.5px solid var(--accent); border-radius: 999px; background: transparent; cursor: pointer; line-height: 1.4; }
+  a.btn:active, button.btn:active { background: var(--accent-soft); }
+  button.btn.solid { background: var(--accent); color: var(--accent-ink); }
+  button.btn.ghost { border-color: var(--line); color: var(--ink); }
+  button.btn.danger { border-color: var(--bad); color: var(--bad); }
+  button.btn.sm { font-size: 13px; padding: 4px 10px; }
+  .editbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .rowtools { display: flex; gap: 6px; }
+
+  .res { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 16px; border-top: 1px solid var(--line); align-items: center; }
+  .res:first-child { border-top: 0; }
+  .res b { font-weight: 600; }
+  .res small { color: var(--muted); font-size: 14px; grid-column: 1; }
+  .res a { grid-row: 1 / span 2; font-size: 14px; font-weight: 600; text-decoration: none; }
+
+  .empty { display: grid; grid-template-columns: 1fr 72px; gap: 8px 14px; align-items: center; }
+  .empty .count { font-family: var(--display); font-size: 40px; font-weight: 700; line-height: 1; }
+  .empty .count small { font-size: 16px; font-weight: 500; margin-left: 6px; color: var(--muted); }
+  .empty .cat { width: 72px; height: 72px; color: var(--accent); grid-row: 1 / span 2; }
+  .empty p { grid-column: 1; }
+
+  footer { color: var(--muted); font-size: 14px; display: grid; gap: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Save bar */
+  #savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; padding: 10px 18px calc(10px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--ground); display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+  #savebar span { font-size: 14px; }
+  #savebar .btns { display: flex; gap: 8px; }
+  #savebar button.btn { border-color: var(--ground); color: var(--ground); }
+  #savebar button.btn.solid { background: var(--ground); color: var(--ink); }
+
+  /* Dialogs / forms */
+  dialog { border: 0; border-radius: 16px; padding: 0; background: var(--surface); color: var(--ink); width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }
+  dialog::backdrop { background: rgba(20, 12, 15, .5); }
+  dialog form { display: grid; gap: 12px; padding: 18px; }
+  dialog h3 { font-size: 20px; }
+  .f { display: grid; gap: 4px; }
+  .f label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .f input, .f select, .f textarea { font: inherit; font-size: 16px; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--ground); color: var(--ink); width: 100%; }
+  .f textarea { min-height: 80px; resize: vertical; }
+  .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .f .stars { display: flex; gap: 6px; }
+  .f .stars button { font: inherit; width: 40px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; font-weight: 700; }
+  .f .stars button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .actions { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-top: 4px; }
+  .actions .right { display: flex; gap: 8px; margin-left: auto; }
+  .help { font-size: 14px; color: var(--muted); }
+  .help ol { margin: 6px 0 0; padding-left: 20px; }
+  .msg { font-size: 14px; min-height: 1.4em; }
+  .msg.bad { color: var(--bad); }
+  .msg.ok { color: var(--ok); }
+
+  #gate { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+  #gate form { width: 100%; max-width: 340px; display: grid; gap: 16px; text-align: center; justify-items: center; }
+  #gate .cat { width: 96px; height: 96px; color: var(--accent); }
+  #gate h1 { font-size: 26px; }
+  #gate input { font: inherit; font-family: var(--display); font-size: 32px; letter-spacing: .3em; text-align: center; padding: 12px 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); width: 100%; }
+  #gate button { font: inherit; font-weight: 600; font-size: 17px; padding: 12px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; width: 100%; }
+  #gate label.rem { display: flex; gap: 8px; justify-content: center; align-items: center; font-size: 15px; color: var(--muted); }
+  #gate .err { color: var(--bad); font-size: 15px; min-height: 1.4em; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: no-preference) {
+    main { animation: fade .25s ease-out; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .cat .tail { transform-origin: 78px 82px; animation: wag 3s ease-in-out infinite; }
+    @keyframes wag { 0%,100% { transform: rotate(0deg);} 50% { transform: rotate(-12deg);} }
+  }
+  @media (min-width: 480px) { .provs { grid-template-columns: repeat(8, 1fr); } .prov b { font-size: 22px; } }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form id="pinform" autocomplete="off">
+    <div class="cat" id="gatecat"></div>
+    <p class="eyebrow">Bitácora de Fátima</p>
+    <h1>Introduce el PIN</h1>
+    <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN de seis cifras" autofocus>
+    <button type="submit">Entrar</button>
+    <label class="rem"><input type="checkbox" id="rem" checked> Recordar en este teléfono</label>
+    <p class="err" id="err" aria-live="polite"></p>
+  </form>
+</div>
+
+<main id="app" hidden></main>
+
+<div id="savebar" hidden>
+  <span id="savemsg">Cambios sin guardar</span>
+  <div class="btns"><button class="btn sm" id="discard" type="button">Descartar</button><button class="btn sm solid" id="save" type="button">Guardar</button></div>
+</div>
+
+<dialog id="dlg-oferta">
+  <form method="dialog" id="form-oferta">
+    <h3 id="dlg-oferta-title">Nueva oferta</h3>
+    <div class="f2">
+      <div class="f"><label>Provincia</label><select name="provincia" required></select></div>
+      <div class="f"><label>Estado</label><select name="estado"></select></div>
+    </div>
+    <div class="f"><label>Entidad</label><input name="entidad" required placeholder="Residencia, asociación, ayuntamiento…"></div>
+    <div class="f"><label>Puesto</label><input name="puesto" required placeholder="Psicólogo/a de…"></div>
+    <div class="f2">
+      <div class="f"><label>Localidad</label><input name="localidad"></div>
+      <div class="f"><label>Ámbito</label><input name="ambito" list="ambitos" placeholder="Residencial mayores…"></div>
+    </div>
+    <datalist id="ambitos"></datalist>
+    <div class="f2">
+      <div class="f"><label>Jornada / horario</label><input name="jornada"></div>
+      <div class="f"><label>Contrato</label><input name="contrato" placeholder="Indefinido, temporal…"></div>
+    </div>
+    <div class="f2">
+      <div class="f"><label>Salario</label><input name="salario"></div>
+      <div class="f"><label>Fuente · fecha</label><div class="f2" style="gap:6px"><input name="fuente" placeholder="InfoJobs"><input name="fecha" placeholder="06/09"></div></div>
+    </div>
+    <div class="f"><label>Encaje (1 a 5)</label><div class="stars" id="stars"></div><input type="hidden" name="encaje" value="3"></div>
+    <div class="f"><label>Enlace</label><input name="enlace" type="url" inputmode="url" placeholder="https://…"></div>
+    <div class="f"><label>Notas para Fátima</label><textarea name="notas"></textarea></div>
+    <div class="actions">
+      <button type="button" class="btn danger sm" id="del-oferta" hidden>Borrar</button>
+      <div class="right"><button type="button" class="btn ghost" value="cancel" id="cancel-oferta">Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-cand">
+  <form method="dialog" id="form-cand">
+    <h3 id="dlg-cand-title">Nueva candidatura</h3>
+    <div class="f2">
+      <div class="f"><label>Provincia</label><select name="provincia"></select></div>
+      <div class="f"><label>Estado</label><select name="estado"></select></div>
+    </div>
+    <div class="f"><label>Entidad</label><input name="entidad" required></div>
+    <div class="f"><label>Puesto</label><input name="puesto" required></div>
+    <div class="f2">
+      <div class="f"><label>Fecha</label><input name="fecha" placeholder="06/09/2026"></div>
+      <div class="f"><label>Siguiente paso</label><input name="siguiente"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn danger sm" id="del-cand" hidden>Borrar</button>
+      <div class="right"><button type="button" class="btn ghost" id="cancel-cand">Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-token">
+  <form method="dialog" id="form-token">
+    <h3>Conectar con GitHub para guardar</h3>
+    <p class="help">Solo hace falta una vez en este teléfono. La página guarda los cambios cifrados en el repositorio del sitio.
+      <ol>
+        <li>Entra en GitHub → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token.</li>
+        <li>Repository access: <b>Only select repositories</b> → <b>d4bit/cuaderno</b>.</li>
+        <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Caducidad: la máxima.</li>
+        <li>Copia el token y pégalo aquí.</li>
+      </ol>
+    </p>
+    <div class="f"><label>Token</label><input name="token" type="password" autocomplete="off" placeholder="github_pat_…" required></div>
+    <p class="msg" id="token-msg"></p>
+    <div class="actions"><div class="right"><button type="button" class="btn ghost" id="cancel-token">Cancelar</button><button type="submit" class="btn solid">Guardar token</button></div></div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  var REPO = '__REPO__', DATAPATH = 'datos.enc.json';
+  var gate = document.getElementById('gate'), app = document.getElementById('app');
+  var form = document.getElementById('pinform'), pinEl = document.getElementById('pin'), err = document.getElementById('err'), rem = document.getElementById('rem');
+  var savebar = document.getElementById('savebar'), savemsg = document.getElementById('savemsg');
+  var PROVS = ['Sevilla', 'Cádiz', 'Huelva', 'Córdoba', 'Málaga', 'Granada', 'Almería', 'Jaén'];
+  var PRIO = { 'Sevilla': 1, 'Cádiz': 1 };
+  var ESTADOS = ['Nueva', 'En estudio', 'Enviada', 'Contacto', 'Entrevista', 'Oferta', 'Descartada', 'Sin respuesta', 'Rechazada'];
+  var SECTIONS = [['novedades', 'Novedades'], ['ofertas', 'Ofertas'], ['bolsas', 'Bolsas'], ['centros', 'Centros'], ['candidaturas', 'Candidaturas'], ['avances', 'Avances'], ['tetoca', 'Te toca']];
+  var DATA = null, PIN = null, LOADED_CT = null, filtro = 'Todas', editing = false, dirty = false;
+
+  function b64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  function tob64(u) { var s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function hoy() { var m = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']; var d = new Date(); return d.getDate() + ' de ' + m[d.getMonth()] + ' de ' + d.getFullYear(); }
+  function uid() { return Math.random().toString(36).slice(2, 10); }
+
+  function cat(mood) {
+    var eyes = mood === 'sleep' ? '<path d="M36 58 q6 5 12 0" /><path d="M52 58 q6 5 12 0" />'
+      : mood === 'happy' ? '<path d="M36 58 q6 -6 12 0" /><path d="M52 58 q6 -6 12 0" />'
+      : '<ellipse cx="42" cy="57" rx="3.2" ry="4.5" fill="currentColor" stroke="none"/><ellipse cx="58" cy="57" rx="3.2" ry="4.5" fill="currentColor" stroke="none"/>';
+    return '<svg class="cat" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path class="tail" d="M78 82 q18 -4 14 -20" /><polygon points="24,44 30,14 48,34" fill="var(--accent-soft)" /><polygon points="76,44 70,14 52,34" fill="var(--accent-soft)" /><circle cx="50" cy="62" r="30" fill="var(--accent-soft)" />'
+      + eyes + '<path d="M47 68 h6 l-3 3z" fill="currentColor" stroke="none" /><path d="M50 71 q-4 5 -8 3 M50 71 q4 5 8 3" /><path d="M14 66 l20 2 M14 74 l20 -2 M86 66 l-20 2 M86 74 l-20 -2" stroke-width="2" />'
+      + (mood === 'sleep' ? '<text x="80" y="30" font-size="14" fill="currentColor" stroke="none" font-family="sans-serif" font-weight="700">z</text><text x="88" y="20" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif" font-weight="700">z</text>' : '') + '</svg>';
+  }
+  document.getElementById('gatecat').innerHTML = cat('awake');
+
+  /* ---------- crypto ---------- */
+  async function deriveKey(pin, salt, iter, usage) {
+    var km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, [usage]);
+  }
+  async function decrypt(payload, pin) {
+    var key = await deriveKey(pin, b64(payload.salt), payload.iter, 'decrypt');
+    var pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(payload.iv) }, key, b64(payload.ct));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }
+  async function encrypt(obj, pin) {
+    var salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), iter = 200000;
+    var key = await deriveKey(pin, salt, iter, 'encrypt');
+    var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(JSON.stringify(obj, null, 2)));
+    return { iter: iter, salt: tob64(salt), iv: tob64(iv), ct: tob64(new Uint8Array(ct)) };
+  }
+  async function fetchPayload() {
+    var r = await fetch('datos.enc.json?v=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('No se pudo cargar el contenido');
+    return r.json();
+  }
+
+  /* ---------- render helpers ---------- */
+  function pillEstado(e) {
+    var m = { 'Nueva': 'accent', 'En estudio': 'info', 'Enviada': 'ok', 'Contacto': 'ok', 'Entrevista': 'ok', 'Oferta': 'ok', 'Descartada': 'bad', 'Sin respuesta': 'warn', 'Rechazada': 'bad', 'Abierta': 'ok', 'Cerrada': 'bad', 'Prevista': 'warn', 'Inscrita': 'ok' };
+    var cls = m[e]; return '<span class="pill ' + (cls || '') + '">' + esc(e || 'Nueva') + '</span>';
+  }
+  function fit(n) {
+    n = Math.max(0, Math.min(5, +n || 0)); var s = '<span class="fit" aria-label="Encaje ' + n + ' de 5">';
+    for (var i = 1; i <= 5; i++) s += '<i class="' + (i <= n ? 'on' : '') + '"></i>';
+    return s + '<span>encaje</span></span>';
+  }
+  var chev = '<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg>';
+  function groupByProv(items) {
+    var g = {}; PROVS.forEach(function (p) { g[p] = []; }); g['Otras'] = [];
+    items.forEach(function (o) { var p = PROVS.indexOf(o.provincia) >= 0 ? o.provincia : 'Otras'; g[p].push(o); });
+    return g;
+  }
+  function ensureIds() { ['ofertas', 'candidaturas'].forEach(function (k) { (DATA[k] || []).forEach(function (o) { if (!o.id) o.id = uid(); }); }); }
+
+  function ofertaCard(o) {
+    var h = '<article class="oferta" data-id="' + esc(o.id) + '"><div class="top"><h3>' + esc(o.puesto) + '</h3>' + pillEstado(o.estado) + '</div>';
+    h += '<p class="where"><b>' + esc(o.entidad) + '</b>' + (o.localidad ? ' · ' + esc(o.localidad) : '') + (o.fecha ? ' · <span class="num">' + esc(o.fecha) + '</span>' : '') + '</p>';
+    var pills = [];
+    if (o.ambito) pills.push('<span class="pill accent">' + esc(o.ambito) + '</span>');
+    if (o.jornada) pills.push('<span class="pill">' + esc(o.jornada) + '</span>');
+    if (o.contrato) pills.push('<span class="pill">' + esc(o.contrato) + '</span>');
+    if (o.salario) pills.push('<span class="pill">' + esc(o.salario) + '</span>');
+    if (o.fuente) pills.push('<span class="pill info">' + esc(o.fuente) + '</span>');
+    if (pills.length) h += '<div class="pills">' + pills.join('') + '</div>';
+    if (o.notas) h += '<p class="notes">' + esc(o.notas) + '</p>';
+    h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
+    return h;
+  }
+
+  function renderOfertas() {
+    var box = document.getElementById('ofertas-box'); if (!box) return;
+    var all = DATA.ofertas || [];
+    var of = filtro === 'Todas' ? all : all.filter(function (o) { return o.ambito === filtro; });
+    var g = groupByProv(of), h = '';
+    var provsWith = PROVS.concat(['Otras']).filter(function (p) { return g[p].length; });
+    if (editing) h += '<div class="editbar"><button type="button" class="btn solid sm" data-add-oferta="">+ Añadir oferta</button></div>';
+    if (!provsWith.length) {
+      h += '<div class="panel empty"><div class="count num">0<small>' + (all.length ? 'con este filtro' : 'por ahora') + '</small></div>' + cat('sleep') + '<p class="muted">' + esc(all.length ? 'Prueba con otro ámbito.' : 'Cuando haya ofertas aparecen aquí por provincia, con su valoración y su enlace.') + '</p></div>';
+    } else {
+      provsWith.forEach(function (p, idx) {
+        g[p].sort(function (a, b) { return (+b.encaje || 0) - (+a.encaje || 0); });
+        h += '<details class="grp" id="prov-' + esc(p) + '"' + (idx === 0 || PRIO[p] ? ' open' : '') + '><summary>' + chev + esc(p) + (PRIO[p] ? ' <span class="pill accent">prioridad</span>' : '') + '<span class="n num">' + g[p].length + (g[p].length === 1 ? ' oferta' : ' ofertas') + '</span></summary><div class="body">';
+        h += g[p].map(ofertaCard).join('');
+        if (editing) h += '<div class="oferta"><button type="button" class="btn sm ghost" data-add-oferta="' + esc(p) + '">+ Añadir oferta en ' + esc(p) + '</button></div>';
+        h += '</div></details>';
+      });
+    }
+    box.innerHTML = h;
+    var tiles = document.getElementById('provs'); if (tiles) {
+      var gAll = groupByProv(all);
+      tiles.innerHTML = PROVS.map(function (p) { var n = gAll[p].length; return '<button type="button" class="prov ' + (n ? 'hot' : 'zero') + (PRIO[p] ? ' prio' : '') + '" data-prov="' + esc(p) + '"><b class="num">' + n + '</b><span>' + esc(p) + '</span></button>'; }).join('');
+    }
+    var cnt = document.getElementById('n-ofertas'); if (cnt) cnt.textContent = all.length;
+    var nav = document.querySelector('nav.menu a[href="#ofertas"] .c'); if (nav) nav.textContent = all.length;
+  }
+
+  function renderCand() {
+    var box = document.getElementById('cand-box'); if (!box) return;
+    var ca = DATA.candidaturas || [], h = '';
+    if (editing) h += '<div class="editbar"><button type="button" class="btn solid sm" data-add-cand>+ Añadir candidatura</button></div>';
+    if (!ca.length) {
+      h += '<div class="panel empty"><div class="count num">0<small>enviadas</small></div>' + cat('sleep') + '<p class="muted">Empezamos a enviar cuando el CV nuevo esté listo. Aquí verás cada centro, cuándo se envió, qué han contestado y cuál es el siguiente paso.</p></div>';
+    } else {
+      h += '<div class="panel"><ul class="check">';
+      ca.forEach(function (c) {
+        h += '<li><span class="box">→</span><div class="txt"><span><b>' + esc(c.entidad) + '</b> · ' + esc(c.puesto) + ' ' + pillEstado(c.estado) + (c.provincia ? ' <span class="pill">' + esc(c.provincia) + '</span>' : '') + '</span>';
+        h += '<small class="num">' + esc(c.fecha || '') + (c.siguiente ? ' · Siguiente: ' + esc(c.siguiente) : '') + '</small></div>' + (editing ? '<button type="button" class="btn sm ghost" data-edit-cand="' + esc(c.id) + '">Editar</button>' : '') + '</li>';
+      });
+      h += '</ul></div>';
+    }
+    box.innerHTML = h;
+    var cnt = document.getElementById('n-cand'); if (cnt) cnt.textContent = ca.length;
+    var nav = document.querySelector('nav.menu a[href="#candidaturas"] .c'); if (nav) nav.textContent = ca.length;
+  }
+
+  function render() {
+    var d = DATA; ensureIds();
+    var all = d.ofertas || [], bo = d.bolsas || [], re = d.recursos || [], ca = d.candidaturas || [], tt = d.te_toca || [];
+    var counts = { novedades: (d.novedades || []).length, ofertas: all.length, bolsas: bo.length, centros: re.length, candidaturas: ca.length, avances: ((d.avances || {}).siguientes || []).length, tetoca: tt.filter(function (t) { return !t.hecho; }).length };
+    var h = '';
+    h += '<header><div><p class="eyebrow">Búsqueda de trabajo</p><h1>Bitácora de Fátima</h1></div>' + cat('happy');
+    h += '<p class="sub">Lo que David y Claude han hecho, encontrado y tienen previsto. Actualizado el <span class="num">' + esc(d.actualizado) + '</span>.</p>';
+    h += '<div class="tools"><button type="button" class="btn sm ' + (editing ? 'solid' : 'ghost') + '" id="toggle-edit">' + (editing ? 'Terminar edición' : 'Editar') + '</button></div></header>';
+
+    h += '<nav class="menu" aria-label="Secciones"><ul>' + SECTIONS.map(function (s) { return '<li><a href="#' + s[0] + '" data-sec="' + s[0] + '">' + s[1] + (counts[s[0]] ? ' <span class="c">' + counts[s[0]] + '</span>' : '') + '</a></li>'; }).join('') + '</ul></nav>';
+
+    h += '<section id="novedades"><h2>Novedades</h2><div class="panel"><ul class="plain">';
+    (d.novedades || []).forEach(function (n) { h += '<li><span class="dot"></span><p>' + esc(n) + '</p></li>'; });
+    if (!(d.novedades || []).length) h += '<li><p class="muted">Sin novedades.</p></li>';
+    h += '</ul></div></section>';
+
+    h += '<section id="ofertas"><h2>Ofertas por provincia <span class="n num" id="n-ofertas">' + all.length + '</span></h2><div class="provs" id="provs"></div>';
+    var ambitos = []; all.forEach(function (o) { if (o.ambito && ambitos.indexOf(o.ambito) < 0) ambitos.push(o.ambito); });
+    if (ambitos.length > 1) h += '<div class="filters" role="tablist">' + ['Todas'].concat(ambitos).map(function (a) { return '<button type="button" class="chip' + (a === filtro ? ' on' : '') + '" data-f="' + esc(a) + '">' + esc(a) + '</button>'; }).join('') + '</div>';
+    h += '<div class="stack" id="ofertas-box"></div></section>';
+
+    h += '<section id="bolsas"><h2>Bolsas públicas <span class="n num">' + bo.length + '</span></h2>';
+    if (!bo.length) h += '<div class="panel"><p class="muted">Ninguna registrada todavía.</p></div>';
+    else {
+      var gb = groupByProv(bo); h += '<div class="stack">';
+      PROVS.concat(['Otras']).forEach(function (p) {
+        if (!gb[p].length) return;
+        h += '<details class="grp"' + (PRIO[p] ? ' open' : '') + '><summary>' + chev + esc(p === 'Otras' ? 'Toda Andalucía' : p) + '<span class="n num">' + gb[p].length + '</span></summary><div class="body">';
+        gb[p].forEach(function (b) { h += '<div class="res"><b>' + esc(b.organismo) + ' ' + pillEstado(b.estado) + '</b><small>' + esc(b.detalle || '') + (b.plazo ? ' · Plazo: ' + esc(b.plazo) : '') + '</small>' + (b.enlace ? '<a href="' + esc(b.enlace) + '" target="_blank" rel="noopener">Abrir</a>' : '') + '</div>'; });
+        h += '</div></details>';
+      });
+      h += '</div>';
+    }
+    h += '</section>';
+
+    h += '<section id="centros"><h2>Centros a los que vamos a escribir <span class="n num">' + re.length + '</span></h2>';
+    if (!re.length) h += '<div class="panel"><p class="muted">Pendiente del mapa de recursos.</p></div>';
+    else {
+      var gr = groupByProv(re); h += '<div class="stack">';
+      PROVS.concat(['Otras']).forEach(function (p) {
+        if (!gr[p].length) return;
+        h += '<details class="grp"' + (p === 'Sevilla' ? ' open' : '') + '><summary>' + chev + esc(p) + '<span class="n num">' + gr[p].length + '</span></summary><div class="body">';
+        gr[p].forEach(function (r) { h += '<div class="res"><b>' + esc(r.nombre) + (r.estado && r.estado !== 'Nueva' ? ' ' + pillEstado(r.estado) : '') + '</b><small>' + esc(r.tipo || '') + (r.localidad ? ' · ' + esc(r.localidad) : '') + '</small>' + (r.web ? '<a href="' + esc(r.web) + '" target="_blank" rel="noopener">Web</a>' : '') + '</div>'; });
+        h += '</div></details>';
+      });
+      h += '</div>';
+    }
+    h += '</section>';
+
+    h += '<section id="candidaturas"><h2>Candidaturas <span class="n num" id="n-cand">' + ca.length + '</span></h2><div class="stack" id="cand-box"></div></section>';
+
+    var av = d.avances || {};
+    h += '<section id="avances"><h2>Avances y próximos pasos</h2><div class="panel"><ul class="check">';
+    (av.hechos || []).forEach(function (t) { h += '<li class="done"><span class="box">✓</span><div class="txt"><span>' + esc(t) + '</span></div></li>'; });
+    (av.siguientes || []).forEach(function (s) { h += '<li><span class="box"></span><div class="txt"><span>' + esc(s.texto) + '</span>' + (s.detalle ? '<small>' + esc(s.detalle) + '</small>' : '') + '</div></li>'; });
+    h += '</ul></div></section>';
+
+    h += '<section id="tetoca"><h2>Te toca a ti</h2><div class="panel"><ul class="check">';
+    if (!tt.length) h += '<li><p class="muted">Nada pendiente.</p></li>';
+    tt.forEach(function (s, i) { h += '<li class="' + (s.hecho ? 'done' : '') + '"><button type="button" class="box" data-toggle-tt="' + i + '" aria-label="Marcar">' + (s.hecho ? '✓' : '') + '</button><div class="txt"><span>' + esc(s.texto) + '</span>' + (s.detalle ? '<small>' + esc(s.detalle) + '</small>' : '') + '</div></li>'; });
+    h += '</ul></div></section>';
+
+    h += '<footer><p>Esta página la actualizan David y Claude. Solo se puede leer con el PIN.</p><p><a href="#" id="salir">Olvidar el PIN en este teléfono</a></p></footer>';
+    app.innerHTML = h;
+    renderOfertas(); renderCand(); observeSections();
+    gate.hidden = true; app.hidden = false;
+  }
+
+  /* ---------- menu highlight ---------- */
+  var io = null;
+  function observeSections() {
+    if (io) io.disconnect();
+    var links = {}; app.querySelectorAll('nav.menu a').forEach(function (a) { links[a.getAttribute('data-sec')] = a; });
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { Object.keys(links).forEach(function (k) { links[k].classList.toggle('on', k === e.target.id); }); links[e.target.id] && links[e.target.id].scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); } });
+    }, { rootMargin: '-56px 0px -70% 0px', threshold: 0 });
+    app.querySelectorAll('section[id]').forEach(function (s) { io.observe(s); });
+  }
+
+  /* ---------- editing ---------- */
+  function markDirty() { dirty = true; DATA.actualizado = hoy(); savebar.hidden = false; savemsg.textContent = 'Cambios sin guardar'; }
+  function fillSelect(sel, opts, val) { sel.innerHTML = opts.map(function (o) { return '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join(''); }
+  var dlgO = document.getElementById('dlg-oferta'), formO = document.getElementById('form-oferta'), starsEl = document.getElementById('stars');
+  var dlgC = document.getElementById('dlg-cand'), formC = document.getElementById('form-cand');
+  var dlgT = document.getElementById('dlg-token'), formT = document.getElementById('form-token');
+  var editingId = null;
+
+  function setStars(n) { formO.encaje.value = n; starsEl.innerHTML = [1, 2, 3, 4, 5].map(function (i) { return '<button type="button" class="' + (i <= n ? 'on' : '') + '" data-star="' + i + '">' + i + '</button>'; }).join(''); }
+  starsEl.addEventListener('click', function (e) { var b = e.target.closest('[data-star]'); if (b) setStars(+b.getAttribute('data-star')); });
+
+  function openOferta(id, prov) {
+    var o = id ? (DATA.ofertas || []).find(function (x) { return x.id === id; }) : null;
+    editingId = id || null;
+    document.getElementById('dlg-oferta-title').textContent = o ? 'Editar oferta' : 'Nueva oferta';
+    document.getElementById('del-oferta').hidden = !o;
+    fillSelect(formO.provincia, PROVS.concat(['Otras']), o ? o.provincia : (prov || 'Sevilla'));
+    fillSelect(formO.estado, ESTADOS, o ? o.estado : 'Nueva');
+    var ambitos = []; (DATA.ofertas || []).forEach(function (x) { if (x.ambito && ambitos.indexOf(x.ambito) < 0) ambitos.push(x.ambito); });
+    ['Residencial mayores', 'Discapacidad intelectual', 'Salud mental', 'Daño cerebral', 'Psicooncología', 'Atención temprana', 'Igualdad y violencia de género', 'Servicios sociales públicos', 'Acción social'].forEach(function (a) { if (ambitos.indexOf(a) < 0) ambitos.push(a); });
+    document.getElementById('ambitos').innerHTML = ambitos.map(function (a) { return '<option value="' + esc(a) + '">'; }).join('');
+    ['entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace', 'notas'].forEach(function (k) { formO[k].value = o && o[k] ? o[k] : ''; });
+    if (!o) { var d = new Date(); formO.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); }
+    setStars(o ? (+o.encaje || 3) : 3);
+    dlgO.showModal();
+  }
+  formO.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var o = editingId ? DATA.ofertas.find(function (x) { return x.id === editingId; }) : { id: uid() };
+    ['provincia', 'estado', 'entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace', 'notas'].forEach(function (k) { var v = formO[k].value.trim(); if (v) o[k] = v; else delete o[k]; });
+    o.encaje = +formO.encaje.value || 3;
+    if (!editingId) { DATA.ofertas = DATA.ofertas || []; DATA.ofertas.push(o); }
+    dlgO.close(); markDirty(); renderOfertas();
+  });
+  document.getElementById('cancel-oferta').addEventListener('click', function () { dlgO.close(); });
+  document.getElementById('del-oferta').addEventListener('click', function () {
+    if (!editingId || !confirm('¿Borrar esta oferta?')) return;
+    DATA.ofertas = DATA.ofertas.filter(function (x) { return x.id !== editingId; });
+    dlgO.close(); markDirty(); renderOfertas();
+  });
+
+  function openCand(id) {
+    var c = id ? (DATA.candidaturas || []).find(function (x) { return x.id === id; }) : null;
+    editingId = id || null;
+    document.getElementById('dlg-cand-title').textContent = c ? 'Editar candidatura' : 'Nueva candidatura';
+    document.getElementById('del-cand').hidden = !c;
+    fillSelect(formC.provincia, PROVS.concat(['Otras']), c ? c.provincia : 'Sevilla');
+    fillSelect(formC.estado, ESTADOS.slice(2), c ? c.estado : 'Enviada');
+    ['entidad', 'puesto', 'fecha', 'siguiente'].forEach(function (k) { formC[k].value = c && c[k] ? c[k] : ''; });
+    if (!c) { var d = new Date(); formC.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+    dlgC.showModal();
+  }
+  formC.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var c = editingId ? DATA.candidaturas.find(function (x) { return x.id === editingId; }) : { id: uid() };
+    ['provincia', 'estado', 'entidad', 'puesto', 'fecha', 'siguiente'].forEach(function (k) { var v = formC[k].value.trim(); if (v) c[k] = v; else delete c[k]; });
+    if (!editingId) { DATA.candidaturas = DATA.candidaturas || []; DATA.candidaturas.push(c); }
+    dlgC.close(); markDirty(); renderCand();
+  });
+  document.getElementById('cancel-cand').addEventListener('click', function () { dlgC.close(); });
+  document.getElementById('del-cand').addEventListener('click', function () {
+    if (!editingId || !confirm('¿Borrar esta candidatura?')) return;
+    DATA.candidaturas = DATA.candidaturas.filter(function (x) { return x.id !== editingId; });
+    dlgC.close(); markDirty(); renderCand();
+  });
+
+  /* ---------- GitHub save ---------- */
+  function getToken() { try { return localStorage.getItem('bitacora_gh'); } catch (_) { return null; } }
+  function askToken() { return new Promise(function (res) { document.getElementById('token-msg').textContent = ''; formT.token.value = ''; dlgT.returnValue = ''; dlgT.showModal(); dlgT.onclose = function () { res(dlgT.returnValue === 'ok' ? getToken() : null); }; }); }
+  formT.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var t = formT.token.value.trim(), msg = document.getElementById('token-msg');
+    msg.className = 'msg'; msg.textContent = 'Comprobando…';
+    try {
+      var r = await fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + t, Accept: 'application/vnd.github+json' } });
+      if (!r.ok) throw new Error('GitHub dice ' + r.status);
+      var j = await r.json(); if (!j.permissions || !j.permissions.push) throw new Error('El token no tiene permiso de escritura en ' + REPO);
+      try { localStorage.setItem('bitacora_gh', t); } catch (_) {}
+      dlgT.close('ok');
+    } catch (err2) { msg.className = 'msg bad'; msg.textContent = err2.message; }
+  });
+  document.getElementById('cancel-token').addEventListener('click', function () { dlgT.close(''); });
+
+  async function save(force) {
+    var token = getToken(); if (!token) token = await askToken(); if (!token) return;
+    savemsg.textContent = 'Guardando…';
+    try {
+      var api = 'https://api.github.com/repos/' + REPO + '/contents/' + DATAPATH;
+      var hdr = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
+      var g = await fetch(api + '?ref=main&t=' + Date.now(), { headers: hdr, cache: 'no-store' });
+      if (g.status === 401 || g.status === 403) { try { localStorage.removeItem('bitacora_gh'); } catch (_) {} throw new Error('El token no vale. Vuelve a guardar para introducir otro.'); }
+      if (!g.ok) throw new Error('GitHub dice ' + g.status);
+      var cur = await g.json();
+      var remote = null; try { remote = JSON.parse(decodeURIComponent(escape(atob(cur.content.replace(/\n/g, ''))))); } catch (_) {}
+      if (!force && remote && LOADED_CT && remote.ct !== LOADED_CT) {
+        if (!confirm('Alguien ha guardado cambios desde que abriste la página. Si sigues, los sobrescribes. ¿Guardar igualmente?')) { savemsg.textContent = 'Cambios sin guardar'; return; }
+      }
+      var payload = await encrypt(DATA, PIN);
+      var body = JSON.stringify({ message: 'Actualización desde la web ' + new Date().toISOString().slice(0, 16), content: btoa(unescape(encodeURIComponent(JSON.stringify(payload)))), sha: cur.sha, branch: 'main' });
+      var p = await fetch(api, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, hdr), body: body });
+      if (!p.ok) throw new Error('No se pudo guardar (' + p.status + ')');
+      LOADED_CT = payload.ct; dirty = false;
+      savemsg.textContent = 'Guardado. La web se refresca en uno o dos minutos.';
+      setTimeout(function () { if (!dirty) savebar.hidden = true; }, 3500);
+      render();
+    } catch (err3) { savemsg.textContent = err3.message; }
+  }
+  document.getElementById('save').addEventListener('click', function () { save(false); });
+  document.getElementById('discard').addEventListener('click', async function () {
+    if (!confirm('¿Descartar los cambios sin guardar?')) return;
+    try { var pl = await fetchPayload(); DATA = await decrypt(pl, PIN); LOADED_CT = pl.ct; } catch (_) {}
+    dirty = false; savebar.hidden = true; render();
+  });
+  window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ---------- events ---------- */
+  app.addEventListener('click', function (e) {
+    var t = e.target;
+    var c = t.closest('.chip'); if (c) { filtro = c.getAttribute('data-f'); app.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === c); }); renderOfertas(); return; }
+    var p = t.closest('.prov'); if (p) { var d = document.getElementById('prov-' + p.getAttribute('data-prov')); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
+    if (t.id === 'toggle-edit') { editing = !editing; render(); return; }
+    var ao = t.closest('[data-add-oferta]'); if (ao) { openOferta(null, ao.getAttribute('data-add-oferta') || null); return; }
+    var eo = t.closest('[data-edit-oferta]'); if (eo) { openOferta(eo.getAttribute('data-edit-oferta')); return; }
+    if (t.closest('[data-add-cand]')) { openCand(null); return; }
+    var ec = t.closest('[data-edit-cand]'); if (ec) { openCand(ec.getAttribute('data-edit-cand')); return; }
+    var tt = t.closest('[data-toggle-tt]'); if (tt) { var i = +tt.getAttribute('data-toggle-tt'); DATA.te_toca[i].hecho = !DATA.te_toca[i].hecho; markDirty(); render(); return; }
+    if (t.id === 'salir') { e.preventDefault(); try { localStorage.removeItem('bitacora_pin'); } catch (_) {} location.reload(); }
+  });
+
+  /* ---------- unlock ---------- */
+  async function tryPin(pin, remember) {
+    err.textContent = '';
+    try {
+      var pl = await fetchPayload();
+      DATA = await decrypt(pl, pin); PIN = pin; LOADED_CT = pl.ct;
+      if (remember) { try { localStorage.setItem('bitacora_pin', pin); } catch (_) {} }
+      render();
+    } catch (e) {
+      err.textContent = (e && /cargar/.test(e.message)) ? e.message : 'PIN incorrecto. Prueba otra vez.';
+      pinEl.value = ''; pinEl.focus();
+    }
+  }
+  form.addEventListener('submit', function (e) { e.preventDefault(); tryPin(pinEl.value.trim(), rem.checked); });
+  pinEl.addEventListener('input', function () { if (pinEl.value.length === 6) tryPin(pinEl.value.trim(), rem.checked); });
+  var saved = null; try { saved = localStorage.getItem('bitacora_pin'); } catch (_) {}
+  if (saved) tryPin(saved, false);
+})();
+</script>
+</body>
+</html>
