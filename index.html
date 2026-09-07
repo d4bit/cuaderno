@@ -179,6 +179,51 @@
   .msg.bad { color: var(--bad); }
   .msg.ok { color: var(--ok); }
 
+  /* ---- CV a medida ---- */
+  #cvwrap { position: fixed; inset: 0; z-index: 20; background: var(--ground); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #cvbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: var(--ink); color: var(--ground); }
+  #cvbar strong { font-family: var(--display); font-size: 15px; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #cvbar button { font: inherit; font-weight: 600; font-size: 14px; min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--ground); background: transparent; color: var(--ground); cursor: pointer; }
+  #cvbar button.solid { background: var(--ground); color: var(--ink); }
+  #cvhint { padding: 12px 16px 0; font-size: 14px; color: var(--muted); }
+  #cvsheet { background: #ffffff; color: #23202a; margin: 12px; padding: 22px 20px 26px; border-radius: 12px; box-shadow: 0 2px 14px rgba(40, 26, 32, 0.12); }
+  #cvsheet .cvhead { border-bottom: 2px solid #23202a; padding-bottom: 10px; }
+  #cvsheet h2.cvname { font-size: 25px; letter-spacing: -0.01em; margin: 0 0 2px; color: #23202a; }
+  #cvsheet p.cvrole { font-size: 15px; font-weight: 600; color: #8a4a58; margin: 0 0 6px; }
+  #cvsheet .cvmeta { font-size: 12.5px; color: #55505c; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  #cvsheet section.cvs { margin-top: 15px; break-inside: avoid; }
+  #cvsheet h3.cvh { font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8a4a58; border-bottom: 1px solid #ded3d7; padding-bottom: 3px; margin: 0 0 8px; }
+  #cvsheet p.cvsum { font-size: 13.5px; line-height: 1.5; margin: 0; }
+  #cvsheet ul.cvul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  #cvsheet ul.cvul li { position: relative; padding-left: 13px; font-size: 13px; line-height: 1.45; }
+  #cvsheet ul.cvul li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: #b06a78; }
+  #cvsheet .job { margin-bottom: 12px; break-inside: avoid; }
+  #cvsheet .job:last-child { margin-bottom: 0; }
+  #cvsheet .job h4 { font-size: 14.5px; margin: 0; }
+  #cvsheet .job p.jmeta { font-size: 12.5px; color: #55505c; margin: 1px 0 5px; }
+  #cvsheet .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  #cvsheet .tags span { font-size: 12px; font-weight: 600; background: #f4e9ec; color: #7d4451; border-radius: 999px; padding: 3px 9px; }
+  #cvsheet .two { display: grid; gap: 15px; }
+  #cvsheet .fit-note { background: #faf3f5; border-radius: 8px; padding: 12px 13px; }
+  #cvsheet .fit-note h3.cvh { border-bottom: 0; padding-bottom: 0; margin-bottom: 6px; }
+  @media (min-width: 620px) {
+    #cvsheet { max-width: 780px; margin: 16px auto; padding: 32px 34px 36px; }
+    #cvsheet .two { grid-template-columns: 1fr 1fr; gap: 18px; }
+  }
+  @media print {
+    @page { size: A4; margin: 13mm 14mm; }
+    html, body { background: #ffffff; }
+    body > *:not(#cvwrap) { display: none; }
+    #cvwrap { position: static; overflow: visible; background: #ffffff; }
+    #cvbar, #cvhint { display: none; }
+    #cvsheet { margin: 0; padding: 0; border-radius: 0; box-shadow: none; max-width: none; }
+    #cvsheet .two { grid-template-columns: 1fr 1fr; gap: 16px; }
+    #cvsheet h2.cvname { font-size: 21pt; }
+    #cvsheet p.cvsum, #cvsheet ul.cvul li { font-size: 9.5pt; }
+    #cvsheet .job h4 { font-size: 10.5pt; }
+    #cvsheet .tags span { font-size: 8.5pt; }
+  }
+
   #gate { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
   #gate form { width: 100%; max-width: 340px; display: grid; gap: 16px; text-align: center; justify-items: center; }
   #gate .cat { width: 96px; height: 96px; color: var(--accent); }
@@ -213,6 +258,12 @@
 
 <main id="app" hidden></main>
 
+<div id="cvwrap" hidden>
+  <div id="cvbar"><strong id="cvfor"></strong><button type="button" id="cvclose">Cerrar</button><button type="button" class="solid" id="cvprint">Descargar</button></div>
+  <p id="cvhint">Se abre el diálogo de impresión. Elige <b>Guardar como PDF</b>. En el móvil, toca Compartir y luego Guardar en Archivos.</p>
+  <div id="cvsheet"></div>
+</div>
+
 <div id="savebar" hidden>
   <span id="savemsg">Cambios sin guardar</span>
   <div class="btns"><button class="btn sm" id="discard" type="button">Descartar</button><button class="btn sm solid" id="save" type="button">Guardar</button></div>
@@ -242,6 +293,7 @@
     </div>
     <div class="f"><label>Encaje (1 a 5)</label><div class="stars" id="stars"></div><input type="hidden" name="encaje" value="3"></div>
     <div class="f"><label>Enlace</label><input name="enlace" type="url" inputmode="url" placeholder="https://…"></div>
+    <div class="f"><label>CV · por qué encaja (uno por línea)</label><textarea name="cv_puntos" placeholder="Funciones idénticas a su puesto actual&#10;Cumple los dos requisitos que piden"></textarea></div>
     <div class="f"><label>Puntos clave (uno por línea)</label><textarea name="notas" placeholder="Indefinido y jornada completa&#10;A 20 min de casa&#10;Piden 1 año de experiencia"></textarea></div>
     <div class="actions">
       <button type="button" class="btn danger sm" id="del-oferta" hidden>Borrar</button>
@@ -364,7 +416,7 @@
     if (facts.length) h += '<dl class="facts">' + facts.map(function (f) { return '<dt>' + f[0] + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>';
     var notas = Array.isArray(o.notas) ? o.notas : String(o.notas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
     if (notas.length) h += '<ul class="mini">' + notas.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
-    h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
+    h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + '<button type="button" class="btn" data-cv="' + esc(o.id) + '">Ver CV</button>' + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
     return h;
   }
 
@@ -516,6 +568,7 @@
     document.getElementById('ambitos').innerHTML = ambitos.map(function (a) { return '<option value="' + esc(a) + '">'; }).join('');
     ['entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { formO[k].value = o && o[k] ? o[k] : ''; });
     formO.notas.value = o && o.notas ? (Array.isArray(o.notas) ? o.notas.join('\n') : o.notas) : '';
+    formO.cv_puntos.value = o && o.cv_puntos ? (Array.isArray(o.cv_puntos) ? o.cv_puntos.join('\n') : o.cv_puntos) : '';
     if (!o) { var d = new Date(); formO.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); }
     setStars(o ? (+o.encaje || 3) : 3);
     dlgO.showModal();
@@ -525,6 +578,7 @@
     var o = editingId ? DATA.ofertas.find(function (x) { return x.id === editingId; }) : { id: uid() };
     ['provincia', 'estado', 'entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { var v = formO[k].value.trim(); if (v) o[k] = v; else delete o[k]; });
     var nl = formO.notas.value.split(/\n+/).map(function (x) { return x.trim().replace(/^[-•·]\s*/, ''); }).filter(Boolean); if (nl.length) o.notas = nl; else delete o.notas;
+    var cl = formO.cv_puntos.value.split(/\n+/).map(function (x) { return x.trim().replace(/^[-•·]\s*/, ''); }).filter(Boolean); if (cl.length) o.cv_puntos = cl; else delete o.cv_puntos;
     o.encaje = +formO.encaje.value || 3;
     if (!editingId) { DATA.ofertas = DATA.ofertas || []; DATA.ofertas.push(o); }
     dlgO.close(); markDirty(); renderOfertas();
@@ -610,6 +664,53 @@
   });
   window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+
+  /* ---------- CV a medida ---------- */
+  var cvwrap = document.getElementById('cvwrap'), cvsheet = document.getElementById('cvsheet'), cvfor = document.getElementById('cvfor');
+  function cvProfile(o) {
+    var per = DATA.cv_perfiles || {};
+    return per[o.ambito] || per['Servicios sociales públicos'] || { titular: (DATA.cv || {}).titulo || '', resumen: '', foco: [], orden: [] };
+  }
+  function openCV(id) {
+    var o = (DATA.ofertas || []).find(function (x) { return x.id === id; }); if (!o) return;
+    var cv = DATA.cv; if (!cv) { alert('Todavía no hay datos de CV en la bitácora.'); return; }
+    var pr = cvProfile(o);
+    var jobs = (cv.experiencia || []).slice();
+    if (pr.orden && pr.orden.length) jobs.sort(function (a, b) { var ia = pr.orden.indexOf(a.id), ib = pr.orden.indexOf(b.id); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
+    var h = '';
+    h += '<div class="cvhead"><h2 class="cvname">' + esc(cv.nombre) + '</h2><p class="cvrole">' + esc(pr.titular || cv.titulo) + '</p>';
+    h += '<div class="cvmeta">' + (cv.contacto || []).map(function (c, i) { return (i ? '<span>·</span>' : '') + '<span>' + esc(c) + '</span>'; }).join('') + '</div></div>';
+    if (pr.resumen) h += '<section class="cvs"><h3 class="cvh">Perfil</h3><p class="cvsum">' + esc(pr.resumen) + '</p></section>';
+    var puntos = (o.cv_puntos && o.cv_puntos.length) ? o.cv_puntos : (pr.foco || []);
+    if (puntos.length) {
+      h += '<section class="cvs"><div class="fit-note"><h3 class="cvh">Encaje con el puesto de ' + esc(o.entidad) + '</h3><ul class="cvul">';
+      h += puntos.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div></section>';
+    }
+    h += '<section class="cvs"><h3 class="cvh">Experiencia profesional</h3>';
+    jobs.forEach(function (j) {
+      h += '<div class="job"><h4>' + esc(j.puesto) + '</h4><p class="jmeta">' + esc(j.entidad) + ' · ' + esc(j.lugar) + ' · ' + esc(j.fechas) + '</p>';
+      h += '<ul class="cvul">' + (j.bullets || []).map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></div>';
+    });
+    h += '</section>';
+    if ((cv.practicas || []).length) {
+      h += '<section class="cvs"><h3 class="cvh">Prácticas</h3><ul class="cvul">';
+      h += cv.practicas.map(function (x) { return '<li><b>' + esc(x.entidad) + '</b> · ' + esc(x.lugar) + ' · ' + esc(x.fechas) + (x.detalle ? '. ' + esc(x.detalle) : '') + '</li>'; }).join('') + '</ul></section>';
+    }
+    h += '<section class="cvs"><h3 class="cvh">Formación</h3><ul class="cvul">';
+    h += (cv.formacion || []).map(function (f) { return '<li><b>' + esc(f.titulo) + '</b> · ' + esc(f.centro) + ' · ' + esc(f.fechas) + (f.detalle ? '. ' + esc(f.detalle) : '') + '</li>'; }).join('') + '</ul></section>';
+    h += '<div class="two">';
+    h += '<section class="cvs"><h3 class="cvh">Instrumentos de evaluación</h3><div class="tags">' + (cv.instrumentos || []).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></section>';
+    h += '<section class="cvs"><h3 class="cvh">Competencias</h3><div class="tags">' + (cv.competencias || []).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></section>';
+    h += '</div>';
+    h += '<section class="cvs"><h3 class="cvh">Idiomas</h3><div class="tags">' + (cv.idiomas || []).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></section>';
+    cvsheet.innerHTML = h;
+    cvfor.textContent = 'CV para ' + o.entidad;
+    cvwrap.hidden = false; cvwrap.scrollTop = 0; document.body.style.overflow = 'hidden';
+  }
+  document.getElementById('cvclose').addEventListener('click', function () { cvwrap.hidden = true; document.body.style.overflow = ''; });
+  document.getElementById('cvprint').addEventListener('click', function () { window.print(); });
+  window.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !cvwrap.hidden) { cvwrap.hidden = true; document.body.style.overflow = ''; } });
+
   /* ---------- events ---------- */
   app.addEventListener('click', function (e) {
     var t = e.target;
@@ -618,6 +719,7 @@
     if (t.id === 'toggle-edit') { editing = !editing; render(); return; }
     var ao = t.closest('[data-add-oferta]'); if (ao) { openOferta(null, ao.getAttribute('data-add-oferta') || null); return; }
     var eo = t.closest('[data-edit-oferta]'); if (eo) { openOferta(eo.getAttribute('data-edit-oferta')); return; }
+    var cvb = t.closest('[data-cv]'); if (cvb) { openCV(cvb.getAttribute('data-cv')); return; }
     if (t.closest('[data-add-cand]')) { openCand(null); return; }
     var ec = t.closest('[data-edit-cand]'); if (ec) { openCand(ec.getAttribute('data-edit-cand')); return; }
     var tt = t.closest('[data-toggle-tt]'); if (tt) { var i = +tt.getAttribute('data-toggle-tt'); DATA.te_toca[i].hecho = !DATA.te_toca[i].hecho; markDirty(); render(); return; }
