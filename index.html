@@ -354,7 +354,7 @@
   var savebar = document.getElementById('savebar'), savemsg = document.getElementById('savemsg');
   var PROVS = ['Sevilla', 'Cádiz', 'Huelva', 'Córdoba', 'Málaga', 'Granada', 'Almería', 'Jaén'];
   var PRIO = { 'Sevilla': 1, 'Cádiz': 1 };
-  var ESTADOS = ['Nueva', 'En estudio', 'Enviada', 'Contacto', 'Entrevista', 'Oferta', 'Descartada', 'Sin respuesta', 'Rechazada'];
+  var ESTADOS = ['Nueva', 'En estudio', 'Preparando', 'Enviada', 'Contacto', 'Entrevista', 'Oferta', 'Descartada', 'Sin respuesta', 'Rechazada'];
   var SECTIONS = [['novedades', 'Novedades'], ['ofertas', 'Ofertas'], ['bolsas', 'Bolsas'], ['centros', 'Centros'], ['candidaturas', 'Candidaturas'], ['avances', 'Avances'], ['tetoca', 'Te toca']];
   var DATA = null, PIN = null, LOADED_CT = null, filtro = 'Todas', editing = false, dirty = false;
 
@@ -399,7 +399,7 @@
 
   /* ---------- render helpers ---------- */
   function pillEstado(e) {
-    var m = { 'Nueva': 'accent', 'En estudio': 'info', 'Enviada': 'ok', 'Contacto': 'ok', 'Entrevista': 'ok', 'Oferta': 'ok', 'Descartada': 'bad', 'Sin respuesta': 'warn', 'Rechazada': 'bad', 'Abierta': 'ok', 'Cerrada': 'bad', 'Prevista': 'warn', 'Inscrita': 'ok' };
+    var m = { 'Nueva': 'accent', 'En estudio': 'info', 'Preparando': 'warn', 'Enviada': 'ok', 'Contacto': 'ok', 'Entrevista': 'ok', 'Oferta': 'ok', 'Descartada': 'bad', 'Sin respuesta': 'warn', 'Rechazada': 'bad', 'Abierta': 'ok', 'Cerrada': 'bad', 'Prevista': 'warn', 'Inscrita': 'ok' };
     var cls = m[e]; return '<span class="pill ' + (cls || '') + '">' + esc(e || 'Nueva') + '</span>';
   }
   function fit(n) {
@@ -603,7 +603,7 @@
     document.getElementById('dlg-cand-title').textContent = c ? 'Editar candidatura' : 'Nueva candidatura';
     document.getElementById('del-cand').hidden = !c;
     fillSelect(formC.provincia, PROVS.concat(['Otras']), c ? c.provincia : 'Sevilla');
-    fillSelect(formC.estado, ESTADOS.slice(2), c ? c.estado : 'Enviada');
+    fillSelect(formC.estado, ESTADOS.slice(3), c ? c.estado : 'Enviada');
     ['entidad', 'puesto', 'fecha', 'siguiente'].forEach(function (k) { formC[k].value = c && c[k] ? c[k] : ''; });
     if (!c) { var d = new Date(); formC.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
     dlgC.showModal();
