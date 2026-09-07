@@ -187,8 +187,11 @@
   #cvbar button.solid { background: var(--ground); color: var(--ink); }
   #cvhint { padding: 12px 16px 0; font-size: 14px; color: var(--muted); }
   #cvsheet { background: #ffffff; color: #23202a; margin: 12px; padding: 22px 20px 26px; border-radius: 12px; box-shadow: 0 2px 14px rgba(40, 26, 32, 0.12); }
-  #cvsheet .cvhead { border-bottom: 2px solid #23202a; padding-bottom: 10px; }
-  #cvsheet h2.cvname { font-size: 25px; letter-spacing: -0.01em; margin: 0 0 2px; color: #23202a; }
+  #cvsheet .cvhead { border-bottom: 2px solid #23202a; padding-bottom: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+  #cvsheet .cvhead > div { min-width: 0; }
+  #cvsheet .foto { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; background: #f4e9ec; flex: none; }
+  #cvsheet .foto img { width: 106%; height: 106%; margin: -3%; object-fit: cover; display: block; }
+  #cvsheet h2.cvname { font-size: 21px; line-height: 1.12; letter-spacing: -0.01em; margin: 0 0 3px; color: #23202a; }
   #cvsheet p.cvrole { font-size: 15px; font-weight: 600; color: #8a4a58; margin: 0 0 6px; }
   #cvsheet .cvmeta { font-size: 12.5px; color: #55505c; display: flex; flex-wrap: wrap; gap: 4px 8px; }
   #cvsheet section.cvs { margin-top: 15px; break-inside: avoid; }
@@ -208,6 +211,8 @@
   #cvsheet .fit-note h3.cvh { border-bottom: 0; padding-bottom: 0; margin-bottom: 6px; }
   @media (min-width: 620px) {
     #cvsheet { max-width: 780px; margin: 16px auto; padding: 32px 34px 36px; }
+    #cvsheet .foto { width: 112px; height: 112px; }
+    #cvsheet h2.cvname { font-size: 26px; }
     #cvsheet .two { grid-template-columns: 1fr 1fr; gap: 18px; }
   }
   @media print {
@@ -222,6 +227,8 @@
     #cvsheet p.cvsum, #cvsheet ul.cvul li { font-size: 9.5pt; }
     #cvsheet .job h4 { font-size: 10.5pt; }
     #cvsheet .tags span { font-size: 8.5pt; }
+    #cvsheet { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #cvsheet .foto { width: 26mm; height: 26mm; }
   }
 
   #gate { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
@@ -678,8 +685,10 @@
     var jobs = (cv.experiencia || []).slice();
     if (pr.orden && pr.orden.length) jobs.sort(function (a, b) { var ia = pr.orden.indexOf(a.id), ib = pr.orden.indexOf(b.id); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
     var h = '';
-    h += '<div class="cvhead"><h2 class="cvname">' + esc(cv.nombre) + '</h2><p class="cvrole">' + esc(pr.titular || cv.titulo) + '</p>';
+    h += '<div class="cvhead"><div><h2 class="cvname">' + esc(cv.nombre) + '</h2><p class="cvrole">' + esc(pr.titular || cv.titulo) + '</p>';
     h += '<div class="cvmeta">' + (cv.contacto || []).map(function (c, i) { return (i ? '<span>·</span>' : '') + '<span>' + esc(c) + '</span>'; }).join('') + '</div></div>';
+    if (cv.foto) h += '<div class="foto"><img src="' + esc(cv.foto) + '" alt="Fotografía de ' + esc(cv.nombre) + '"></div>';
+    h += '</div>';
     if (pr.resumen) h += '<section class="cvs"><h3 class="cvh">Perfil</h3><p class="cvsum">' + esc(pr.resumen) + '</p></section>';
     var puntos = (o.cv_puntos && o.cv_puntos.length) ? o.cv_puntos : (pr.foco || []);
     if (puntos.length) {
