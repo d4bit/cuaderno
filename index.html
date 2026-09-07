@@ -96,6 +96,7 @@
   .prov.zero b { color: var(--line); }
   .prov.prio span::after { content: " ★"; color: var(--accent); }
 
+  .toolrow { display: flex; justify-content: flex-end; }
   .filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .filters::-webkit-scrollbar { display: none; }
   .chip { flex: 0 0 auto; font: inherit; font-size: 14px; font-weight: 600; min-height: 38px; padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
@@ -209,6 +210,21 @@
   #cvsheet .two { display: grid; gap: 15px; }
   #cvsheet .fit-note { background: #faf3f5; border-radius: 8px; padding: 12px 13px; }
   #cvsheet .fit-note h3.cvh { border-bottom: 0; padding-bottom: 0; margin-bottom: 6px; }
+  /* carta */
+  #cvsheet.carta { line-height: 1.55; }
+  #cvsheet.carta .lhead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: start; border-bottom: 1px solid #ded3d7; padding-bottom: 12px; }
+  #cvsheet.carta .lhead h2 { font-size: 19px; margin: 0 0 2px; color: #23202a; }
+  #cvsheet.carta .lhead p { font-size: 12.5px; color: #55505c; margin: 0; }
+  #cvsheet.carta .lfecha { font-size: 12.5px; color: #55505c; margin: 14px 0 0; }
+  #cvsheet.carta .lto { margin: 14px 0 0; font-size: 13.5px; }
+  #cvsheet.carta .lto b { display: block; }
+  #cvsheet.carta .lasunto { margin: 14px 0 0; font-size: 13.5px; }
+  #cvsheet.carta .lbody { display: grid; gap: 10px; margin-top: 14px; }
+  #cvsheet.carta .lbody p { font-size: 13.5px; margin: 0; text-align: justify; text-wrap: pretty; hyphens: auto; }
+  #cvsheet.carta .lfirma { margin-top: 20px; font-size: 13.5px; }
+  #cvsheet.carta .lfirma b { display: block; }
+  #cvsheet.carta .lfirma span { color: #55505c; font-size: 12.5px; }
+
   @media (min-width: 620px) {
     #cvsheet { max-width: 780px; margin: 16px auto; padding: 32px 34px 36px; }
     #cvsheet .foto { width: 112px; height: 112px; }
@@ -300,6 +316,7 @@
     </div>
     <div class="f"><label>Encaje (1 a 5)</label><div class="stars" id="stars"></div><input type="hidden" name="encaje" value="3"></div>
     <div class="f"><label>Enlace</label><input name="enlace" type="url" inputmode="url" placeholder="https://…"></div>
+    <div class="f"><label>Carta · por qué este centro (un párrafo)</label><textarea name="carta_motivo" placeholder="Se imprime en la carta. Por qué esta entidad y este puesto en concreto."></textarea></div>
     <div class="f"><label>CV · aptitudes destacadas (una por línea)</label><textarea name="cv_puntos" placeholder="Se imprimen en el CV: escríbelas como en un currículum, sin nombrar a la empresa.&#10;Valoración psicológica al ingreso y elaboración de informes.&#10;Planes de atención individualizados e intervención grupal."></textarea></div>
     <div class="f"><label>Puntos clave (uno por línea)</label><textarea name="notas" placeholder="Indefinido y jornada completa&#10;A 20 min de casa&#10;Piden 1 año de experiencia"></textarea></div>
     <div class="actions">
@@ -423,7 +440,7 @@
     if (facts.length) h += '<dl class="facts">' + facts.map(function (f) { return '<dt>' + f[0] + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>';
     var notas = Array.isArray(o.notas) ? o.notas : String(o.notas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
     if (notas.length) h += '<ul class="mini">' + notas.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
-    h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + '<button type="button" class="btn" data-cv="' + esc(o.id) + '">Ver CV</button>' + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
+    h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + '<button type="button" class="btn" data-cv="' + esc(o.id) + '">CV</button><button type="button" class="btn" data-carta="' + esc(o.id) + '">Carta</button>' + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
     return h;
   }
 
@@ -434,12 +451,13 @@
     var g = groupByProv(of), h = '';
     var provsWith = PROVS.concat(['Otras']).filter(function (p) { return g[p].length; });
     if (editing) h += '<div class="editbar"><button type="button" class="btn solid sm" data-add-oferta="">+ Añadir oferta</button></div>';
+    if (provsWith.length) h += '<div class="toolrow"><button type="button" class="btn sm ghost" data-all="ofertas-box">Mostrar todo</button></div>';
     if (!provsWith.length) {
       h += '<div class="panel empty"><div class="count num">0<small>' + (all.length ? 'con este filtro' : 'por ahora') + '</small></div>' + cat('sleep') + '<p class="muted">' + esc(all.length ? 'Prueba con otro ámbito.' : 'Cuando haya ofertas aparecen aquí por provincia, con su valoración y su enlace.') + '</p></div>';
     } else {
       provsWith.forEach(function (p, idx) {
         g[p].sort(function (a, b) { return (+b.encaje || 0) - (+a.encaje || 0); });
-        h += '<details class="grp" id="prov-' + esc(p) + '"' + (idx === 0 || PRIO[p] ? ' open' : '') + '><summary>' + chev + esc(p) + (PRIO[p] ? ' <span class="pill accent">prioridad</span>' : '') + '<span class="n num">' + g[p].length + (g[p].length === 1 ? ' oferta' : ' ofertas') + '</span></summary><div class="body">';
+        h += '<details class="grp" id="prov-' + esc(p) + '"><summary>' + chev + esc(p) + (PRIO[p] ? ' <span class="pill accent">prioridad</span>' : '') + '<span class="n num">' + g[p].length + (g[p].length === 1 ? ' oferta' : ' ofertas') + '</span></summary><div class="body">';
         h += g[p].map(ofertaCard).join('');
         if (editing) h += '<div class="oferta"><button type="button" class="btn sm ghost" data-add-oferta="' + esc(p) + '">+ Añadir oferta en ' + esc(p) + '</button></div>';
         h += '</div></details>';
@@ -497,10 +515,10 @@
     h += '<section id="bolsas"><h2>Bolsas públicas <span class="n num">' + bo.length + '</span></h2>';
     if (!bo.length) h += '<div class="panel"><p class="muted">Ninguna registrada todavía.</p></div>';
     else {
-      var gb = groupByProv(bo); h += '<div class="stack">';
+      var gb = groupByProv(bo); h += '<div class="toolrow"><button type="button" class="btn sm ghost" data-all="bolsas-box">Mostrar todo</button></div><div class="stack" id="bolsas-box">';
       PROVS.concat(['Otras']).forEach(function (p) {
         if (!gb[p].length) return;
-        h += '<details class="grp"' + (PRIO[p] ? ' open' : '') + '><summary>' + chev + esc(p === 'Otras' ? 'Toda Andalucía' : p) + '<span class="n num">' + gb[p].length + '</span></summary><div class="body">';
+        h += '<details class="grp"><summary>' + chev + esc(p === 'Otras' ? 'Toda Andalucía' : p) + '<span class="n num">' + gb[p].length + '</span></summary><div class="body">';
         gb[p].forEach(function (b) { h += '<div class="res"><b>' + esc(b.organismo) + ' ' + pillEstado(b.estado) + '</b><small>' + esc(b.detalle || '') + (b.plazo ? ' · Plazo: ' + esc(b.plazo) : '') + '</small>' + (b.enlace ? '<a href="' + esc(b.enlace) + '" target="_blank" rel="noopener">Abrir</a>' : '') + '</div>'; });
         h += '</div></details>';
       });
@@ -511,10 +529,10 @@
     h += '<section id="centros"><h2>Centros a los que vamos a escribir <span class="n num">' + re.length + '</span></h2>';
     if (!re.length) h += '<div class="panel"><p class="muted">Pendiente del mapa de recursos.</p></div>';
     else {
-      var gr = groupByProv(re); h += '<div class="stack">';
+      var gr = groupByProv(re); h += '<div class="toolrow"><button type="button" class="btn sm ghost" data-all="centros-box">Mostrar todo</button></div><div class="stack" id="centros-box">';
       PROVS.concat(['Otras']).forEach(function (p) {
         if (!gr[p].length) return;
-        h += '<details class="grp"' + (p === 'Sevilla' ? ' open' : '') + '><summary>' + chev + esc(p) + '<span class="n num">' + gr[p].length + '</span></summary><div class="body">';
+        h += '<details class="grp"><summary>' + chev + esc(p) + '<span class="n num">' + gr[p].length + '</span></summary><div class="body">';
         gr[p].forEach(function (r) { h += '<div class="res"><b>' + esc(r.nombre) + (r.estado && r.estado !== 'Nueva' ? ' ' + pillEstado(r.estado) : '') + '</b><small>' + esc(r.tipo || '') + (r.localidad ? ' · ' + esc(r.localidad) : '') + '</small>' + (r.web ? '<a href="' + esc(r.web) + '" target="_blank" rel="noopener">Web</a>' : '') + '</div>'; });
         h += '</div></details>';
       });
@@ -576,6 +594,7 @@
     ['entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { formO[k].value = o && o[k] ? o[k] : ''; });
     formO.notas.value = o && o.notas ? (Array.isArray(o.notas) ? o.notas.join('\n') : o.notas) : '';
     formO.cv_puntos.value = o && o.cv_puntos ? (Array.isArray(o.cv_puntos) ? o.cv_puntos.join('\n') : o.cv_puntos) : '';
+    formO.carta_motivo.value = o && o.carta_motivo ? o.carta_motivo : '';
     if (!o) { var d = new Date(); formO.fecha.value = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); }
     setStars(o ? (+o.encaje || 3) : 3);
     dlgO.showModal();
@@ -586,6 +605,7 @@
     ['provincia', 'estado', 'entidad', 'puesto', 'localidad', 'ambito', 'jornada', 'contrato', 'salario', 'fuente', 'fecha', 'enlace'].forEach(function (k) { var v = formO[k].value.trim(); if (v) o[k] = v; else delete o[k]; });
     var nl = formO.notas.value.split(/\n+/).map(function (x) { return x.trim().replace(/^[-•·]\s*/, ''); }).filter(Boolean); if (nl.length) o.notas = nl; else delete o.notas;
     var cl = formO.cv_puntos.value.split(/\n+/).map(function (x) { return x.trim().replace(/^[-•·]\s*/, ''); }).filter(Boolean); if (cl.length) o.cv_puntos = cl; else delete o.cv_puntos;
+    var cm = formO.carta_motivo.value.trim(); if (cm) o.carta_motivo = cm; else delete o.carta_motivo;
     o.encaje = +formO.encaje.value || 3;
     if (!editingId) { DATA.ofertas = DATA.ofertas || []; DATA.ofertas.push(o); }
     dlgO.close(); markDirty(); renderOfertas();
@@ -712,8 +732,40 @@
     h += '<section class="cvs"><h3 class="cvh">Competencias</h3><div class="tags">' + (cv.competencias || []).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></section>';
     h += '</div>';
     h += '<section class="cvs"><h3 class="cvh">Idiomas</h3><div class="tags">' + (cv.idiomas || []).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></section>';
-    cvsheet.innerHTML = h;
+    cvsheet.className = ''; cvsheet.innerHTML = h;
     cvfor.textContent = 'CV para ' + o.entidad;
+    cvwrap.hidden = false; cvwrap.scrollTop = 0; document.body.style.overflow = 'hidden';
+  }
+  function fechaLarga() {
+    var m = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    var d = new Date(); return d.getDate() + ' de ' + m[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+  function openCarta(id) {
+    var o = (DATA.ofertas || []).find(function (x) { return x.id === id; }); if (!o) return;
+    var cv = DATA.cv, c = DATA.carta, per = (DATA.carta_perfiles || {});
+    if (!cv || !c) { alert('Todavía no hay datos de carta en la bitácora.'); return; }
+    var pr = per[o.ambito] || per['Servicios sociales públicos'] || {};
+    var ciudad = (cv.contacto || [])[0] || 'Sevilla';
+    var h = '';
+    h += '<div class="lhead"><div><h2>' + esc(cv.nombre) + '</h2><p>' + esc(cv.titulo) + '</p><p>' + (cv.contacto || []).slice(1, 3).map(esc).join(' · ') + '</p></div>';
+    if (cv.foto) h += '<div class="foto"><img src="' + esc(cv.foto) + '" alt=""></div>';
+    h += '</div>';
+    h += '<p class="lfecha">' + esc(ciudad) + ', ' + fechaLarga() + '</p>';
+    h += '<p class="lto"><b>' + esc(o.entidad) + '</b>' + (o.localidad ? esc(o.localidad) : '') + '</p>';
+    h += '<p class="lasunto"><b>Asunto:</b> candidatura al puesto de ' + esc(o.puesto) + '</p>';
+    h += '<div class="lbody">';
+    h += '<p>' + esc(c.saludo) + '</p>';
+    var p1 = 'Les escribo para presentar mi candidatura al puesto de ' + o.puesto + (o.fuente ? ', publicado en ' + o.fuente : '') + '. ' + (pr.presentacion || '');
+    h += '<p>' + esc(p1) + '</p>';
+    if (pr.experiencia) h += '<p>' + esc(pr.experiencia) + '</p>';
+    if (o.carta_motivo) h += '<p>' + esc(o.carta_motivo) + '</p>';
+    if (pr.aporte) h += '<p>' + esc(pr.aporte) + '</p>';
+    h += '<p>' + esc(o.carta_disponibilidad || c.disponibilidad) + '</p>';
+    h += '<p>' + esc(c.cierre) + '</p>';
+    h += '</div>';
+    h += '<p class="lfirma"><b>' + esc(c.firma) + '</b><span>' + esc(c.posfirma || '') + '</span></p>';
+    cvsheet.className = 'carta'; cvsheet.innerHTML = h;
+    cvfor.textContent = 'Carta para ' + o.entidad;
     cvwrap.hidden = false; cvwrap.scrollTop = 0; document.body.style.overflow = 'hidden';
   }
   document.getElementById('cvclose').addEventListener('click', function () { cvwrap.hidden = true; document.body.style.overflow = ''; });
@@ -725,10 +777,19 @@
     var t = e.target;
     var c = t.closest('.chip'); if (c) { filtro = c.getAttribute('data-f'); app.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === c); }); renderOfertas(); return; }
     var p = t.closest('.prov'); if (p) { var d = document.getElementById('prov-' + p.getAttribute('data-prov')); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
+    var all = t.closest('[data-all]');
+    if (all) {
+      var box = document.getElementById(all.getAttribute('data-all')); if (!box) return;
+      var ds = box.querySelectorAll('details.grp'), abrir = all.textContent.indexOf('Mostrar') === 0;
+      ds.forEach(function (x) { x.open = abrir; });
+      all.textContent = abrir ? 'Ocultar todo' : 'Mostrar todo';
+      return;
+    }
     if (t.id === 'toggle-edit') { editing = !editing; render(); return; }
     var ao = t.closest('[data-add-oferta]'); if (ao) { openOferta(null, ao.getAttribute('data-add-oferta') || null); return; }
     var eo = t.closest('[data-edit-oferta]'); if (eo) { openOferta(eo.getAttribute('data-edit-oferta')); return; }
     var cvb = t.closest('[data-cv]'); if (cvb) { openCV(cvb.getAttribute('data-cv')); return; }
+    var cab = t.closest('[data-carta]'); if (cab) { openCarta(cab.getAttribute('data-carta')); return; }
     if (t.closest('[data-add-cand]')) { openCand(null); return; }
     var ec = t.closest('[data-edit-cand]'); if (ec) { openCand(ec.getAttribute('data-edit-cand')); return; }
     var tt = t.closest('[data-toggle-tt]'); if (tt) { var i = +tt.getAttribute('data-toggle-tt'); DATA.te_toca[i].hecho = !DATA.te_toca[i].hecho; markDirty(); render(); return; }
