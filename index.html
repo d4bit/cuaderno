@@ -122,6 +122,22 @@
   ul.mini { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 15px; }
   ul.mini li { display: flex; gap: 8px; align-items: flex-start; }
   ul.mini li::before { content: ''; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 8px; opacity: .8; }
+  .oferta.off { opacity: .55; }
+  .newdot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #e0343b; margin-right: 8px; vertical-align: 2px; box-shadow: 0 0 0 3px rgba(224,52,59,.18); transition: opacity .5s, transform .5s; }
+  .oferta.seen .newdot { opacity: 0; transform: scale(.3); }
+  .newc { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: #e0343b; color: #fff; font-size: 12px; font-weight: 700; line-height: 1; vertical-align: middle; }
+  .prov { position: relative; }
+  .prov .tilenew { position: absolute; top: -6px; right: -6px; }
+  .prov .tilenew .newc { margin: 0; }
+  .det > summary { cursor: pointer; color: var(--accent); font-size: 14px; font-weight: 600; list-style: none; padding: 2px 0; }
+  .det > summary::-webkit-details-marker { display: none; }
+  .det > summary::after { content: ' ▾'; }
+  .det[open] > summary::after { content: ' ▴'; }
+  .det .mini { margin-top: 6px; }
+  .det .meta { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .panel > .det { margin-top: 10px; }
+  ul.plain.old { margin-top: 10px; }
+  .res .plazo { color: var(--ink); font-weight: 600; }
   .oferta .foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
   .fit { display: inline-flex; gap: 3px; align-items: center; }
   .fit i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); display: inline-block; }
@@ -372,8 +388,8 @@
   var PROVS = ['Sevilla', 'Cádiz', 'Huelva', 'Córdoba', 'Málaga', 'Granada', 'Almería', 'Jaén'];
   var PRIO = { 'Sevilla': 1, 'Cádiz': 1 };
   var ESTADOS = ['Nueva', 'En estudio', 'Preparando', 'Enviada', 'Contacto', 'Entrevista', 'Oferta', 'Descartada', 'Sin respuesta', 'Rechazada'];
-  var SECTIONS = [['novedades', 'Novedades'], ['ofertas', 'Ofertas'], ['bolsas', 'Bolsas'], ['centros', 'Centros'], ['candidaturas', 'Candidaturas'], ['avances', 'Avances'], ['tetoca', 'Te toca']];
-  var DATA = null, PIN = null, LOADED_CT = null, filtro = 'Todas', editing = false, dirty = false;
+  var SECTIONS = [['ofertas', 'Ofertas'], ['bolsas', 'Bolsas'], ['centros', 'Centros'], ['candidaturas', 'Candidaturas']];
+  var DATA = null, PIN = null, LOADED_CT = null, filtro = 'Todas', editing = false, dirty = false, verDesc = false;
 
   function b64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
   function tob64(u) { var s = ''; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
@@ -430,16 +446,52 @@
     items.forEach(function (o) { var p = PROVS.indexOf(o.provincia) >= 0 ? o.provincia : 'Otras'; g[p].push(o); });
     return g;
   }
+  /* ---------- ofertas nuevas: punto rojo hasta que se ven ---------- */
+  var SEEN_KEY = 'bitacora_vistas', seen = {};
+  try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {}; } catch (_) { seen = {}; }
+  function okey(o) { return o.enlace || ((o.entidad || '') + '|' + (o.puesto || '')); }
+  function isNew(o) { return !!o.alta && o.estado !== 'Descartada' && !seen[okey(o)]; }
+  function markSeen(o) {
+    if (!o || seen[okey(o)]) return; seen[okey(o)] = 1;
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_) {}
+    var el = app.querySelector('.oferta[data-id="' + o.id + '"]'); if (el) el.classList.add('seen');
+    setTimeout(updateBadges, 600);
+  }
+  function badge(n) { return n ? '<span class="newc num" aria-label="' + n + (n === 1 ? ' nueva' : ' nuevas') + '">' + n + '</span>' : ''; }
+  function updateBadges() {
+    var all = DATA.ofertas || [];
+    app.querySelectorAll('[data-newfor]').forEach(function (el) {
+      var p = el.getAttribute('data-newfor');
+      var n = all.filter(function (o) { return isNew(o) && (p === '*' || (PROVS.indexOf(o.provincia) >= 0 ? o.provincia : 'Otras') === p); }).length;
+      el.innerHTML = badge(n);
+    });
+  }
+  var seenIO = null;
+  function watchNew() {
+    if (seenIO) seenIO.disconnect();
+    if (!('IntersectionObserver' in window)) return;
+    var timers = {};
+    seenIO = new IntersectionObserver(function (ents) {
+      ents.forEach(function (e) {
+        var id = e.target.getAttribute('data-id');
+        if (e.isIntersecting) { timers[id] = setTimeout(function () { markSeen((DATA.ofertas || []).find(function (x) { return x.id === id; })); seenIO.unobserve(e.target); }, 1500); }
+        else clearTimeout(timers[id]);
+      });
+    }, { threshold: 0.6 });
+    app.querySelectorAll('.oferta.is-new').forEach(function (el) { seenIO.observe(el); });
+  }
+
   function ensureIds() { ['ofertas', 'candidaturas'].forEach(function (k) { (DATA[k] || []).forEach(function (o) { if (!o.id) o.id = uid(); }); }); }
 
   function ofertaCard(o) {
-    var h = '<article class="oferta" data-id="' + esc(o.id) + '"><div class="top"><h3>' + esc(o.puesto) + '</h3>' + pillEstado(o.estado) + '</div>';
-    h += '<p class="where"><b>' + esc(o.entidad) + '</b>' + (o.localidad ? ' · ' + esc(o.localidad) : '') + (o.fecha ? ' · <span class="num">' + esc(o.fecha) + '</span>' : '') + '</p>';
-    if (o.ambito) h += '<div class="pills"><span class="pill accent">' + esc(o.ambito) + '</span></div>';
-    var facts = [['Jornada', o.jornada], ['Contrato', o.contrato], ['Salario', o.salario], ['Fuente', o.fuente]].filter(function (f) { return f[1]; });
-    if (facts.length) h += '<dl class="facts">' + facts.map(function (f) { return '<dt>' + f[0] + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>';
+    var nw = isNew(o);
+    var h = '<article class="oferta' + (o.estado === 'Descartada' ? ' off' : '') + (nw ? ' is-new' : '') + '" data-id="' + esc(o.id) + '"><div class="top"><h3>' + (nw ? '<span class="newdot" title="Nueva"></span>' : '') + esc(o.puesto) + '</h3>' + pillEstado(o.estado) + '</div>';
+    h += '<p class="where"><b>' + esc(o.entidad) + '</b>' + (o.localidad ? ' · ' + esc(o.localidad) : '') + '</p>';
+    var tags = [o.jornada, o.contrato, o.salario].filter(function (x) { return x && !/^no consta/i.test(x); });
+    if (o.ambito || tags.length) h += '<div class="pills">' + (o.ambito ? '<span class="pill accent">' + esc(o.ambito) + '</span>' : '') + tags.map(function (x) { return '<span class="pill" title="' + esc(x) + '">' + esc(x) + '</span>'; }).join('') + '</div>';
     var notas = Array.isArray(o.notas) ? o.notas : String(o.notas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
-    if (notas.length) h += '<ul class="mini">' + notas.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
+    var extra = [o.fecha ? 'Publicada: ' + o.fecha : '', o.fuente ? 'Fuente: ' + o.fuente : ''].filter(Boolean).join(' · ');
+    if (notas.length || extra) h += '<details class="det"><summary>Detalles</summary>' + (notas.length ? '<ul class="mini">' + notas.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' : '') + (extra ? '<p class="meta num">' + esc(extra) + '</p>' : '') + '</details>';
     h += '<div class="foot">' + fit(o.encaje) + '<span class="rowtools">' + (editing ? '<button type="button" class="btn sm ghost" data-edit-oferta="' + esc(o.id) + '">Editar</button>' : '') + '<button type="button" class="btn" data-cv="' + esc(o.id) + '">CV</button><button type="button" class="btn" data-carta="' + esc(o.id) + '">Carta</button>' + (o.enlace ? '<a class="btn" href="' + esc(o.enlace) + '" target="_blank" rel="noopener">Ver oferta</a>' : '') + '</span></div></article>';
     return h;
   }
@@ -448,16 +500,18 @@
     var box = document.getElementById('ofertas-box'); if (!box) return;
     var all = DATA.ofertas || [];
     var of = filtro === 'Todas' ? all : all.filter(function (o) { return o.ambito === filtro; });
+    var nDesc = of.filter(function (o) { return o.estado === 'Descartada'; }).length;
+    if (!verDesc) of = of.filter(function (o) { return o.estado !== 'Descartada'; });
     var g = groupByProv(of), h = '';
     var provsWith = PROVS.concat(['Otras']).filter(function (p) { return g[p].length; });
     if (editing) h += '<div class="editbar"><button type="button" class="btn solid sm" data-add-oferta="">+ Añadir oferta</button></div>';
-    if (provsWith.length) h += '<div class="toolrow"><button type="button" class="btn sm ghost" data-all="ofertas-box">Mostrar todo</button></div>';
+    if (provsWith.length || nDesc) h += '<div class="toolrow">' + (nDesc ? '<button type="button" class="btn sm ghost" data-desc>' + (verDesc ? 'Ocultar descartadas' : 'Ver descartadas (' + nDesc + ')') + '</button>' : '') + (provsWith.length ? '<button type="button" class="btn sm ghost" data-all="ofertas-box">Mostrar todo</button>' : '') + '</div>';
     if (!provsWith.length) {
       h += '<div class="panel empty"><div class="count num">0<small>' + (all.length ? 'con este filtro' : 'por ahora') + '</small></div>' + cat('sleep') + '<p class="muted">' + esc(all.length ? 'Prueba con otro ámbito.' : 'Cuando haya ofertas aparecen aquí por provincia, con su valoración y su enlace.') + '</p></div>';
     } else {
       provsWith.forEach(function (p, idx) {
         g[p].sort(function (a, b) { return (+b.encaje || 0) - (+a.encaje || 0); });
-        h += '<details class="grp" id="prov-' + esc(p) + '"><summary>' + chev + esc(p) + (PRIO[p] ? ' <span class="pill accent">prioridad</span>' : '') + '<span class="n num">' + g[p].length + (g[p].length === 1 ? ' oferta' : ' ofertas') + '</span></summary><div class="body">';
+        h += '<details class="grp" id="prov-' + esc(p) + '"><summary>' + chev + esc(p) + (PRIO[p] ? ' <span class="pill accent">prioridad</span>' : '') + '<span data-newfor="' + esc(p) + '"></span><span class="n num">' + g[p].length + (g[p].length === 1 ? ' oferta' : ' ofertas') + '</span></summary><div class="body">';
         h += g[p].map(ofertaCard).join('');
         if (editing) h += '<div class="oferta"><button type="button" class="btn sm ghost" data-add-oferta="' + esc(p) + '">+ Añadir oferta en ' + esc(p) + '</button></div>';
         h += '</div></details>';
@@ -465,11 +519,12 @@
     }
     box.innerHTML = h;
     var tiles = document.getElementById('provs'); if (tiles) {
-      var gAll = groupByProv(all);
-      tiles.innerHTML = PROVS.map(function (p) { var n = gAll[p].length; return '<button type="button" class="prov ' + (n ? 'hot' : 'zero') + (PRIO[p] ? ' prio' : '') + '" data-prov="' + esc(p) + '"><b class="num">' + n + '</b><span>' + esc(p) + '</span></button>'; }).join('');
+      var gAll = groupByProv(all.filter(function (o) { return o.estado !== 'Descartada'; }));
+      tiles.innerHTML = PROVS.map(function (p) { var n = gAll[p].length; return '<button type="button" class="prov ' + (n ? 'hot' : 'zero') + (PRIO[p] ? ' prio' : '') + '" data-prov="' + esc(p) + '"><span class="tilenew" data-newfor="' + esc(p) + '"></span><b class="num">' + n + '</b><span>' + esc(p) + '</span></button>'; }).join('');
     }
     var cnt = document.getElementById('n-ofertas'); if (cnt) cnt.textContent = all.length;
-    var nav = document.querySelector('nav.menu a[href="#ofertas"] .c'); if (nav) nav.textContent = all.length;
+    var nav = document.querySelector('nav.menu a[href="#ofertas"] .c'); if (nav) nav.textContent = all.filter(function (o) { return o.estado !== 'Descartada'; }).length;
+    updateBadges(); watchNew();
   }
 
   function renderCand() {
@@ -494,34 +549,31 @@
   function render() {
     var d = DATA; ensureIds();
     var all = d.ofertas || [], bo = d.bolsas || [], re = d.recursos || [], ca = d.candidaturas || [], tt = d.te_toca || [];
-    var counts = { novedades: (d.novedades || []).length, ofertas: all.length, bolsas: bo.length, centros: re.length, candidaturas: ca.length, avances: ((d.avances || {}).siguientes || []).length, tetoca: tt.filter(function (t) { return !t.hecho; }).length };
+    var activas = all.filter(function (o) { return o.estado !== 'Descartada'; }).length, boAb = bo.filter(function (b) { return b.estado !== 'Cerrada'; });
+    var counts = { ofertas: activas, bolsas: boAb.length, centros: re.length, candidaturas: ca.length };
     var h = '';
     h += '<header><h1>Bitácora de Fátima</h1>' + cat('happy');
     h += '<p class="sub">Actualizado el <span class="num">' + esc(d.actualizado) + '</span></p>';
     h += '<div class="tools"><button type="button" class="btn sm ' + (editing ? 'solid' : 'ghost') + '" id="toggle-edit">' + (editing ? 'Terminar edición' : 'Editar') + '</button></div></header>';
 
-    h += '<nav class="menu" aria-label="Secciones"><ul>' + SECTIONS.map(function (s) { return '<li><a href="#' + s[0] + '" data-sec="' + s[0] + '">' + s[1] + (counts[s[0]] ? ' <span class="c">' + counts[s[0]] + '</span>' : '') + '</a></li>'; }).join('') + '</ul></nav>';
+    h += '<nav class="menu" aria-label="Secciones"><ul>' + SECTIONS.map(function (s) { return '<li><a href="#' + s[0] + '" data-sec="' + s[0] + '">' + s[1] + (counts[s[0]] ? ' <span class="c">' + counts[s[0]] + '</span>' : '') + (s[0] === 'ofertas' ? '<span data-newfor="*"></span>' : '') + '</a></li>'; }).join('') + '</ul></nav>';
 
-    h += '<section id="novedades"><h2>Novedades</h2><div class="panel"><ul class="plain">';
-    (d.novedades || []).forEach(function (n) { h += '<li><span class="dot"></span><p>' + esc(n) + '</p></li>'; });
-    if (!(d.novedades || []).length) h += '<li><p class="muted">Sin novedades.</p></li>';
-    h += '</ul></div></section>';
-
-    h += '<section id="ofertas"><h2>Ofertas por provincia <span class="n num" id="n-ofertas">' + all.length + '</span></h2><div class="provs" id="provs"></div>';
+    h += '<section id="ofertas"><h2>Ofertas <span class="n num" id="n-ofertas">' + activas + '</span></h2><div class="provs" id="provs"></div>';
     var ambitos = []; all.forEach(function (o) { if (o.ambito && ambitos.indexOf(o.ambito) < 0) ambitos.push(o.ambito); });
     if (ambitos.length > 1) h += '<div class="filters" role="tablist">' + ['Todas'].concat(ambitos).map(function (a) { return '<button type="button" class="chip' + (a === filtro ? ' on' : '') + '" data-f="' + esc(a) + '">' + esc(a) + '</button>'; }).join('') + '</div>';
     h += '<div class="stack" id="ofertas-box"></div></section>';
 
-    h += '<section id="bolsas"><h2>Bolsas públicas <span class="n num">' + bo.length + '</span></h2>';
+    h += '<section id="bolsas"><h2>Bolsas y oposiciones <span class="n num">' + boAb.length + '</span></h2>';
+    var bRow = function (b) { return '<div class="res"><b>' + esc(b.organismo) + ' ' + pillEstado(b.estado) + '</b><small>' + (b.plazo ? '<span class="plazo">Plazo: ' + esc(b.plazo) + '</span> ' : '') + esc(b.detalle || '') + '</small>' + (b.enlace ? '<a href="' + esc(b.enlace) + '" target="_blank" rel="noopener">Abrir</a>' : '') + '</div>'; };
     if (!bo.length) h += '<div class="panel"><p class="muted">Ninguna registrada todavía.</p></div>';
     else {
-      var gb = groupByProv(bo); h += '<div class="toolrow"><button type="button" class="btn sm ghost" data-all="bolsas-box">Mostrar todo</button></div><div class="stack" id="bolsas-box">';
+      var gb = groupByProv(boAb); h += '<div class="stack" id="bolsas-box">';
       PROVS.concat(['Otras']).forEach(function (p) {
         if (!gb[p].length) return;
-        h += '<details class="grp"><summary>' + chev + esc(p === 'Otras' ? 'Toda Andalucía' : p) + '<span class="n num">' + gb[p].length + '</span></summary><div class="body">';
-        gb[p].forEach(function (b) { h += '<div class="res"><b>' + esc(b.organismo) + ' ' + pillEstado(b.estado) + '</b><small>' + esc(b.detalle || '') + (b.plazo ? ' · Plazo: ' + esc(b.plazo) : '') + '</small>' + (b.enlace ? '<a href="' + esc(b.enlace) + '" target="_blank" rel="noopener">Abrir</a>' : '') + '</div>'; });
-        h += '</div></details>';
+        h += '<details class="grp"' + (PRIO[p] ? ' open' : '') + '><summary>' + chev + esc(p === 'Otras' ? 'Toda Andalucía' : p) + '<span class="n num">' + gb[p].length + '</span></summary><div class="body">' + gb[p].map(bRow).join('') + '</div></details>';
       });
+      var bc = bo.filter(function (b) { return b.estado === 'Cerrada'; });
+      if (bc.length) h += '<details class="grp"><summary>' + chev + 'Cerradas<span class="n num">' + bc.length + '</span></summary><div class="body">' + bc.map(bRow).join('') + '</div></details>';
       h += '</div>';
     }
     h += '</section>';
@@ -542,18 +594,7 @@
 
     h += '<section id="candidaturas"><h2>Candidaturas <span class="n num" id="n-cand">' + ca.length + '</span></h2><div class="stack" id="cand-box"></div></section>';
 
-    var av = d.avances || {};
-    h += '<section id="avances"><h2>Avances y próximos pasos</h2><div class="panel"><ul class="check">';
-    (av.hechos || []).forEach(function (t) { h += '<li class="done"><span class="box">✓</span><div class="txt"><span>' + esc(t) + '</span></div></li>'; });
-    (av.siguientes || []).forEach(function (s) { h += '<li><span class="box"></span><div class="txt"><span>' + esc(s.texto) + '</span>' + (s.detalle ? '<small>' + esc(s.detalle) + '</small>' : '') + '</div></li>'; });
-    h += '</ul></div></section>';
-
-    h += '<section id="tetoca"><h2>Te toca a ti</h2><div class="panel"><ul class="check">';
-    if (!tt.length) h += '<li><p class="muted">Nada pendiente.</p></li>';
-    tt.forEach(function (s, i) { h += '<li class="' + (s.hecho ? 'done' : '') + '"><button type="button" class="box" data-toggle-tt="' + i + '" aria-label="Marcar">' + (s.hecho ? '✓' : '') + '</button><div class="txt"><span>' + esc(s.texto) + '</span>' + (s.detalle ? '<small>' + esc(s.detalle) + '</small>' : '') + '</div></li>'; });
-    h += '</ul></div></section>';
-
-    h += '<footer><p>Esta página la actualizan David y Claude. Solo se puede leer con el PIN.</p><p><a href="#" id="salir">Olvidar el PIN en este teléfono</a></p></footer>';
+    h += '<footer><p><a href="#" id="salir">Olvidar el PIN en este teléfono</a></p></footer>';
     app.innerHTML = h;
     renderOfertas(); renderCand(); observeSections();
     gate.hidden = true; app.hidden = false;
@@ -775,6 +816,7 @@
   /* ---------- events ---------- */
   app.addEventListener('click', function (e) {
     var t = e.target;
+    var card = t.closest('.oferta.is-new'); if (card && t.closest('button,a,summary')) markSeen((DATA.ofertas || []).find(function (x) { return x.id === card.getAttribute('data-id'); }));
     var c = t.closest('.chip'); if (c) { filtro = c.getAttribute('data-f'); app.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === c); }); renderOfertas(); return; }
     var p = t.closest('.prov'); if (p) { var d = document.getElementById('prov-' + p.getAttribute('data-prov')); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
     var all = t.closest('[data-all]');
@@ -792,6 +834,7 @@
     var cab = t.closest('[data-carta]'); if (cab) { openCarta(cab.getAttribute('data-carta')); return; }
     if (t.closest('[data-add-cand]')) { openCand(null); return; }
     var ec = t.closest('[data-edit-cand]'); if (ec) { openCand(ec.getAttribute('data-edit-cand')); return; }
+    var dsc = t.closest('[data-desc]'); if (dsc) { verDesc = !verDesc; renderOfertas(); return; }
     var tt = t.closest('[data-toggle-tt]'); if (tt) { var i = +tt.getAttribute('data-toggle-tt'); DATA.te_toca[i].hecho = !DATA.te_toca[i].hecho; markDirty(); render(); return; }
     if (t.id === 'salir') { e.preventDefault(); try { localStorage.removeItem('bitacora_pin'); } catch (_) {} location.reload(); }
   });
