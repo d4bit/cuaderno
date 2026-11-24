@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Cambio en caja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+  /* Una sola columna para el móvil: ticket arriba, lo que devuelves en medio, cajón de la caja abajo. */
+  :root {
+    --ground: #fbf8f8; --surface: #ffffff; --surface-2: #f3ecee; --ink: #2a2226; --muted: #7c6e72;
+    --line: #e8dde0; --accent: #a85c6b; --accent-ink: #ffffff; --accent-soft: #f4e3e7;
+    --ok: #3e7d5a; --ok-soft: #e3f0e8; --bad: #a3403f; --bad-soft: #f6e1e0;
+    --paper: #fffdf7; --paper-ink: #2b2a26;
+    /* colores de los billetes y monedas: son objetos, no cambian con el tema */
+    --b5: #a9b3a6; --b10: #d77a6e; --b20: #6f93c9; --b50: #ec9b4c; --bill-ink: #1f1d1c;
+    --copper: #c27a4a; --copper-d: #8e4f2a; --gold: #e2bb4f; --gold-d: #a8822a; --silver: #d3d4d6; --silver-d: #8d9094;
+    --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #1b1619; --surface: #241e21; --surface-2: #2d2528; --ink: #f1e9eb; --muted: #a69aa0;
+      --line: #3a3034; --accent: #d48a9a; --accent-ink: #1b1619; --accent-soft: #3a2a30;
+      --ok: #7fc39c; --ok-soft: #22352b; --bad: #e08a89; --bad-soft: #3d2626;
+      --paper: #f4efe3; --paper-ink: #2b2a26; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #1b1619; --surface: #241e21; --surface-2: #2d2528; --ink: #f1e9eb; --muted: #a69aa0;
+    --line: #3a3034; --accent: #d48a9a; --accent-ink: #1b1619; --accent-soft: #3a2a30;
+    --ok: #7fc39c; --ok-soft: #22352b; --bad: #e08a89; --bad-soft: #3d2626;
+    --paper: #f4efe3; --paper-ink: #2b2a26; color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { caret-color: var(--accent); accent-color: var(--accent); -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.45; -webkit-font-smoothing: antialiased; min-height: 100dvh; }
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+  .num, .money { font-variant-numeric: tabular-nums; }
+  button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 520px; margin: 0 auto; display: grid; gap: 14px;
+    padding-block: max(12px, env(safe-area-inset-top, 0px)) calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+  .top { display: flex; align-items: center; gap: 10px; }
+  .back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px 0 6px; border-radius: 12px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .back svg { flex: none; }
+  .score { margin-left: auto; display: flex; gap: 12px; font-size: 14px; color: var(--muted); }
+  .score b { color: var(--ink); font-family: var(--display); font-size: 18px; }
+
+  h1 { font-family: var(--display); font-size: 26px; line-height: 1.1; margin: 0; text-wrap: balance; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
+  .seg button { border: 0; background: transparent; min-height: 40px; border-radius: 9px; font-weight: 600; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+  /* ticket */
+  .ticket { background: var(--paper); color: var(--paper-ink); border-radius: 6px 6px 0 0; padding: 14px 16px 18px; position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,.10); font-variant-numeric: tabular-nums;
+    -webkit-mask: radial-gradient(circle 6px at 8px 100%, transparent 98%, #000) -8px 0 / 16px 100% repeat-x;
+            mask: radial-gradient(circle 6px at 8px 100%, transparent 98%, #000) -8px 0 / 16px 100% repeat-x; }
+  .ticket .hd { display: flex; justify-content: space-between; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; padding-bottom: 6px; border-bottom: 1px dashed currentColor; }
+  .ticket ul { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 2px; font-size: 16px; }
+  .ticket li { display: flex; justify-content: space-between; gap: 12px; }
+  .ticket .tot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dashed currentColor; padding-top: 8px; }
+  .ticket .tot span { font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
+  .ticket .tot b { font-family: var(--display); font-size: 34px; line-height: 1; }
+
+  .paid { display: grid; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+  .paid .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .paid .row span { color: var(--muted); font-size: 15px; }
+  .paid .row b { font-family: var(--display); font-size: 26px; }
+  .pieces { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 44px; }
+
+  /* billetes y monedas */
+  .bill { --c: var(--b5); width: 72px; height: 40px; border-radius: 5px; background: var(--c); color: var(--bill-ink); position: relative; display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 18px; border: 0;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.25);
+    background-image: repeating-linear-gradient(120deg, rgba(255,255,255,.14) 0 2px, transparent 2px 9px); background-color: var(--c); }
+  .bill::before { content: ""; position: absolute; left: 7px; top: 7px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,.18); }
+  .bill[data-v="500"] { --c: var(--b5); } .bill[data-v="1000"] { --c: var(--b10); } .bill[data-v="2000"] { --c: var(--b20); } .bill[data-v="5000"] { --c: var(--b50); }
+  .coin { --d: 40px; width: var(--d); height: var(--d); border-radius: 50%; border: 0; display: grid; place-items: center; font-family: var(--display); font-weight: 700; color: #2a1d10; font-size: 13px; line-height: 1;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.18), inset 0 -3px 4px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.3); }
+  .coin.cu { background: radial-gradient(circle at 35% 30%, #e7a77a, var(--copper) 55%, var(--copper-d)); }
+  .coin.au { background: radial-gradient(circle at 35% 30%, #f6dc8a, var(--gold) 55%, var(--gold-d)); }
+  .coin.e1 { background: radial-gradient(circle at 50% 50%, var(--silver) 0 54%, var(--gold) 55% 100%); }
+  .coin.e2 { background: radial-gradient(circle at 50% 50%, var(--gold) 0 54%, var(--silver) 55% 100%); }
+  .coin small { font-size: .72em; }
+
+  .give { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; display: grid; gap: 10px; }
+  .give.okb { border-color: var(--ok); background: var(--ok-soft); }
+  .give.badb { border-color: var(--bad); background: var(--bad-soft); }
+  .give .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .give h2 { font-family: var(--display); font-size: 18px; margin: 0; }
+  .give .sum { font-family: var(--display); font-size: 22px; }
+  .give .hint { color: var(--muted); font-size: 15px; margin: 0; }
+  .tray { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; min-height: 48px; }
+  .tray .it { position: relative; background: none; border: 0; padding: 0; }
+  .tray .it .x { position: absolute; top: -7px; right: -7px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--ink); color: var(--ground); font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+
+  .msg { font-size: 16px; margin: 0; }
+  .msg b { font-family: var(--display); }
+  .steps { margin: 0; padding: 10px 12px; list-style: none; background: var(--surface-2); border-radius: 12px; display: grid; gap: 4px; font-size: 15px; }
+  .steps li { display: flex; gap: 10px; align-items: center; }
+  .steps .arrow { color: var(--muted); }
+
+  .actions { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; }
+  .btn { min-height: 52px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; padding: 0 14px; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-family: var(--display); font-size: 18px; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+
+  .drawer { background: var(--surface-2); border-radius: 18px; padding: 12px; display: grid; gap: 12px; }
+  .drawer h2 { font-family: var(--display); font-size: 16px; margin: 0; color: var(--muted); font-weight: 500; }
+  .bills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .bills .bill { width: 100%; height: 52px; font-size: 20px; }
+  .coins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 8px; justify-items: center; }
+  .coins .slot { display: grid; place-items: center; width: 100%; min-height: 58px; border-radius: 12px; background: var(--surface); border: 0; padding: 0; }
+  .drawer button:active { transform: scale(.94); }
+  .opt { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); min-height: 40px; }
+  .opt input { width: 20px; height: 20px; }
+
+  @keyframes pop { from { transform: scale(.6); } to { transform: scale(1); } }
+  .tray .it:last-child { animation: pop .18s cubic-bezier(.2,.9,.3,1.3); }
+  @media (prefers-reduced-motion: reduce) { .tray .it:last-child { animation: none; } .drawer button:active, .btn:active { transform: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <a class="back" href="./"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Bitácora</a>
+    <div class="score" aria-live="polite">
+      <span>Aciertos <b class="num" id="aciertos">0</b></span>
+      <span>Racha <b class="num" id="racha">0</b></span>
+      <span>Mejor <b class="num" id="mejor">0</b></span>
+    </div>
+  </div>
+
+  <h1>Cobra y da el cambio</h1>
+  <div class="seg" role="group" aria-label="Dificultad">
+    <button type="button" data-lvl="facil">Fácil</button>
+    <button type="button" data-lvl="normal">Normal</button>
+    <button type="button" data-lvl="dificil">Difícil</button>
+  </div>
+
+  <section class="ticket" aria-label="Ticket de compra">
+    <div class="hd"><span>Ticket</span><span id="hora" class="num"></span></div>
+    <ul id="items"></ul>
+    <div class="tot"><span>Total</span><b class="money" id="total"></b></div>
+  </section>
+
+  <section class="paid" aria-label="Lo que te da el cliente">
+    <div class="row"><span>El cliente te da</span><b class="money" id="pagado"></b></div>
+    <div class="pieces" id="pagoPiezas"></div>
+  </section>
+
+  <section class="give" id="give" aria-label="Lo que devuelves">
+    <div class="row"><h2>Devuelves</h2><span class="sum money" id="suma"></span></div>
+    <div class="tray" id="tray"></div>
+    <p class="hint" id="trayHint">Toca los billetes y monedas del cajón. Si te equivocas, toca la pieza aquí para quitarla.</p>
+    <p class="msg" id="msg" hidden></p>
+    <ol class="steps" id="steps" hidden></ol>
+  </section>
+
+  <div class="actions">
+    <button type="button" class="btn" id="pista">Pista</button>
+    <button type="button" class="btn" id="borrar">Vaciar</button>
+    <button type="button" class="btn primary" id="entregar">Entregar cambio</button>
+  </div>
+
+  <section class="drawer" aria-label="Cajón de la caja">
+    <h2>Cajón</h2>
+    <div class="bills" id="bills"></div>
+    <div class="coins" id="coins"></div>
+    <label class="opt"><input type="checkbox" id="verSuma" checked> Ver cuánto llevo devuelto</label>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  // Todo en céntimos para no tener errores de decimales.
+  var BILLS = [5000, 2000, 1000, 500];
+  var COINS = [200, 100, 50, 20, 10, 5, 2, 1];
+  var ALL = BILLS.concat(COINS);
+  var COIN_D = { 200: 50, 100: 46, 50: 47, 20: 44, 10: 40, 5: 42, 2: 37, 1: 33 }; // proporcional al tamaño real
+
+  var PRODUCTOS = ['Leche entera 1 l', 'Pan de molde', 'Gel de ducha', 'Champú', 'Galletas', 'Papel higiénico 6 rollos', 'Detergente', 'Agua 1,5 l',
+    'Tomate frito', 'Arroz 1 kg', 'Aceite de girasol', 'Yogures x4', 'Café molido', 'Cacao en polvo', 'Pasta de dientes', 'Desodorante',
+    'Suavizante', 'Lavavajillas', 'Patatas fritas', 'Refresco 2 l', 'Atún x3', 'Colacao', 'Servilletas', 'Bayetas', 'Crema de manos',
+    'Toallitas', 'Chocolate', 'Cereales', 'Galletas saladas', 'Mascarilla de pelo', 'Bolsa'];
+
+  var S = { lvl: 'normal', total: 0, paid: 0, payPieces: [], items: [], tray: [], done: false, aciertos: 0, racha: 0, mejor: 0, verSuma: true };
+
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  S.mejor = +(store('cambio_mejor') || 0);
+  S.lvl = store('cambio_nivel') || 'normal';
+  if (store('cambio_versuma') === '0') S.verSuma = false;
+
+  function eur(c) { var s = (c / 100).toFixed(2).replace('.', ','); return s.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €'; }
+  function label(v) { return v >= 100 ? (v / 100) + ' €' : v + ' cént.'; }
+  function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function greedy(c) { var out = []; ALL.forEach(function (v) { while (c >= v) { out.push(v); c -= v; } }); return out; }
+  function sum(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+
+  function piece(v, extra) {
+    var t = extra || 'span';
+    if (v >= 500) return '<' + t + ' class="bill" data-v="' + v + '">' + (v / 100) + '</' + t + '>';
+    var cls = v <= 5 ? 'cu' : v <= 50 ? 'au' : v === 100 ? 'e1' : 'e2';
+    var txt = v >= 100 ? (v / 100) + '<small>€</small>' : v;
+    return '<' + t + ' class="coin ' + cls + '" style="--d:' + COIN_D[v] + 'px">' + txt + '</' + t + '>';
+  }
+
+  // ---- generar una venta ----
+  function nueva() {
+    var n = S.lvl === 'facil' ? rnd(1, 3) : rnd(2, 5), items = [], total;
+    for (var i = 0; i < n; i++) {
+      var p;
+      if (S.lvl === 'facil') p = rnd(5, 40) * 10;            // múltiplos de 10 céntimos
+      else p = rnd(49, 799) ;                                   // 0,49 a 7,99 €
+      if (S.lvl !== 'facil' && Math.random() < .5) p = Math.round(p / 5) * 5 - 1 > 0 ? Math.round(p / 5) * 5 - 1 : p; // precios tipo 1,99 / 2,49
+      items.push({ n: pick(PRODUCTOS), p: p });
+    }
+    total = sum(items.map(function (x) { return x.p; }));
+    var paid, pieces;
+    var bill = [500, 1000, 2000, 5000].filter(function (b) { return b > total; });
+    if (!bill.length) { bill = [5000]; }
+    if (S.lvl === 'facil') {
+      pieces = [bill[0]];
+    } else if (S.lvl === 'normal') {
+      pieces = [Math.random() < .25 && bill[1] ? bill[1] : bill[0]];
+      if (pieces[0] < total) pieces.push(pieces[0]);
+    } else {
+      var b = Math.random() < .3 && bill[1] ? bill[1] : bill[0];
+      pieces = [b];
+      var cents = total % 100, r = Math.random();
+      if (r < .45 && cents) pieces = pieces.concat(greedy(cents));          // te da los céntimos para que le des euros redondos
+      else if (r < .7 && cents > 50) pieces = pieces.concat(greedy(cents - 50)); // para que le des 50 cént. de vuelta
+      else if (r < .85) pieces = pieces.concat(greedy(rnd(1, 3) * 100));      // te da monedas de más
+    }
+    paid = sum(pieces);
+    while (paid < total) { pieces.push(5000); paid += 5000; }
+    S.items = items; S.total = total; S.paid = paid; S.payPieces = pieces.sort(function (a, b) { return b - a; });
+    S.tray = []; S.done = false;
+    var d = new Date(); document.getElementById('hora').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    draw(); setMsg('', null); document.getElementById('steps').hidden = true;
+  }
+
+  // ---- pintar ----
+  function draw() {
+    document.querySelectorAll('.seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lvl === S.lvl)); });
+    document.getElementById('items').innerHTML = S.items.map(function (x) { return '<li><span>' + x.n + '</span><span>' + eur(x.p) + '</span></li>'; }).join('');
+    document.getElementById('total').textContent = eur(S.total);
+    document.getElementById('pagado').textContent = eur(S.paid);
+    document.getElementById('pagoPiezas').innerHTML = S.payPieces.map(function (v) { return piece(v); }).join('');
+    drawTray();
+    document.getElementById('aciertos').textContent = S.aciertos;
+    document.getElementById('racha').textContent = S.racha;
+    document.getElementById('mejor').textContent = S.mejor;
+  }
+  function drawTray() {
+    var groups = []; S.tray.slice().sort(function (a, b) { return b - a; }).forEach(function (v) { var g = groups[groups.length - 1]; if (g && g.v === v) g.n++; else groups.push({ v: v, n: 1 }); });
+    document.getElementById('tray').innerHTML = groups.map(function (g) {
+      return '<button type="button" class="it" data-quitar="' + g.v + '" aria-label="Quitar ' + label(g.v) + '"' + (S.done ? ' disabled' : '') + '>' + piece(g.v) + (g.n > 1 ? '<span class="x">×' + g.n + '</span>' : '') + '</button>';
+    }).join('');
+    document.getElementById('trayHint').hidden = S.tray.length > 0;
+    var s = document.getElementById('suma');
+    s.textContent = S.verSuma || S.done ? eur(sum(S.tray)) : '';
+    document.getElementById('entregar').textContent = S.done ? 'Siguiente cliente' : 'Entregar cambio';
+    document.getElementById('borrar').disabled = S.done || !S.tray.length;
+    document.getElementById('pista').disabled = S.done;
+  }
+  function setMsg(html, kind) {
+    var m = document.getElementById('msg'), g = document.getElementById('give');
+    m.hidden = !html; m.innerHTML = html || '';
+    g.classList.toggle('okb', kind === 'ok'); g.classList.toggle('badb', kind === 'bad');
+  }
+
+  // ---- cajón ----
+  document.getElementById('bills').innerHTML = BILLS.slice().reverse().map(function (v) { return piece(v, 'button').replace('<button', '<button type="button" data-add="' + v + '" aria-label="Añadir billete de ' + (v / 100) + ' euros"'); }).join('');
+  document.getElementById('coins').innerHTML = COINS.map(function (v) { return '<button type="button" class="slot" data-add="' + v + '" aria-label="Añadir moneda de ' + label(v) + '">' + piece(v) + '</button>'; }).join('');
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-add]');
+    if (a) { if (S.done) return; S.tray.push(+a.dataset.add); if (navigator.vibrate) try { navigator.vibrate(8); } catch (x) {} drawTray(); return; }
+    var q = e.target.closest('[data-quitar]');
+    if (q) { if (S.done) return; var i = S.tray.indexOf(+q.dataset.quitar); if (i >= 0) S.tray.splice(i, 1); drawTray(); return; }
+    var l = e.target.closest('[data-lvl]');
+    if (l) { S.lvl = l.dataset.lvl; store('cambio_nivel', S.lvl); S.racha = 0; nueva(); }
+  });
+
+  document.getElementById('borrar').onclick = function () { S.tray = []; setMsg('', null); drawTray(); };
+  document.getElementById('verSuma').checked = S.verSuma;
+  document.getElementById('verSuma').onchange = function (e) { S.verSuma = e.target.checked; store('cambio_versuma', S.verSuma ? '1' : '0'); drawTray(); };
+
+  // Pista: contar hacia arriba desde el total hasta lo que ha pagado, como se hace en caja.
+  document.getElementById('pista').onclick = function () {
+    var cambio = S.paid - S.total, steps = [], cur = S.total;
+    // primero hasta el siguiente múltiplo "cómodo", luego monedas y billetes grandes
+    var rest = greedy(cambio).reverse();
+    rest.forEach(function (v) { cur += v; steps.push('<li>' + piece(v) + '<span class="arrow">→</span><span class="money">llevas ' + eur(cur) + '</span></li>'); });
+    var el = document.getElementById('steps');
+    el.innerHTML = '<li><span>Empiezas en el total, <b class="money">' + eur(S.total) + '</b>, y vas sumando hasta <b class="money">' + eur(S.paid) + '</b>:</span></li>' + steps.join('');
+    el.hidden = false;
+    S.racha = 0; document.getElementById('racha').textContent = 0;
+  };
+
+  document.getElementById('entregar').onclick = function () {
+    if (S.done) { nueva(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    var cambio = S.paid - S.total, dado = sum(S.tray), opt = greedy(cambio);
+    if (dado === cambio) {
+      S.aciertos++; S.racha++; if (S.racha > S.mejor) { S.mejor = S.racha; store('cambio_mejor', String(S.mejor)); }
+      var extra = S.tray.length > opt.length ? '<br>Se podía dar con menos piezas: ' + opt.map(label).join(' + ') + '.' : '';
+      setMsg('<b>¡Bien!</b> El cambio era <b class="money">' + eur(cambio) + '</b>.' + extra, 'ok');
+      S.done = true;
+    } else {
+      S.racha = 0;
+      var dif = dado - cambio;
+      setMsg((dif > 0 ? 'Le das <b class="money">' + eur(dif) + '</b> de más.' : 'Le faltan <b class="money">' + eur(-dif) + '</b>.') + ' Corrígelo y vuelve a entregar, o pide una pista.', 'bad');
+    }
+    draw();
+  };
+
+  nueva();
+})();
+</script>
+</body>
+</html>

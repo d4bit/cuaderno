@@ -286,6 +286,13 @@
   header { grid-template-columns: 1fr auto; }
   header .sub b { color: var(--accent); font-family: var(--display); font-size: 18px; }
   .lead { color: var(--muted); font-size: 15px; margin-top: -6px; }
+  .juego-btn { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; border-radius: 16px; background: var(--accent); color: var(--accent-ink); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+  .juego-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .juego-btn:active { transform: scale(.98); }
+  .juego-btn .ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--accent-ink) 18%, transparent); flex: none; }
+  .juego-btn b { display: block; font-family: var(--display); font-size: 18px; line-height: 1.15; }
+  .juego-btn small { display: block; font-size: 14px; opacity: .85; }
+  .juego-btn .go { margin-left: auto; font-size: 28px; line-height: 1; }
 
   .ahora { background: var(--surface); border: 1.5px solid var(--accent); border-radius: 16px; padding: 14px 14px 6px; gap: 8px; }
   .ahora h2 { font-size: 18px; }
@@ -734,6 +741,7 @@
     var counts = { ofertas: activas, bolsas: boAb.length, centros: re.length, candidaturas: 0 };
     var h = '';
     h += '<header><h1>Bitácora de Fátima</h1>' + cat('happy') + '<p class="sub" id="progreso"></p></header>';
+    h += '<a class="juego-btn" href="juego.html"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span><span><b>Practicar el cambio</b><small>Juego de caja con billetes y monedas</small></span><span class="go" aria-hidden="true">›</span></a>';
     h += '<section id="ahora" class="ahora" hidden></section>';
     h += '<nav class="menu" aria-label="Secciones"><ul>' + SECTIONS.map(function (s) { return '<li><a href="#' + s[0] + '" data-sec="' + s[0] + '">' + s[1] + ' <span class="c">' + (counts[s[0]] || '') + '</span>' + (s[0] === 'ofertas' ? '<span data-newfor="*"></span>' : '') + '</a></li>'; }).join('') + '</ul></nav>';
 
