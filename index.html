@@ -299,6 +299,10 @@
   .coches-btn .go { color: var(--accent); }
   #coches-view .cv-top { display: flex; }
   #coches-view .cv-h1 { font-size: 30px; }
+  #coches-view .cv-jump { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  #coches-view .cv-jump button { min-height: 44px; border: 0; border-radius: 9px; background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+  #coches-view .cv-jump .num { color: var(--muted); font-weight: 400; margin-left: 4px; }
+  #coches-view section[id] { scroll-margin-top: 64px; }
   #coches-view .manuales { margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
   #coches-view .back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px 0 4px; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
   .coche .foto { margin: -14px -16px 2px; border-radius: 15px 15px 0 0; overflow: hidden; background: var(--surface-2); position: relative; }
@@ -1041,7 +1045,7 @@
   function renderCoches() {
     var d = DATA, co = d.coches || [], v = document.getElementById('coches-view');
     var h = '<div class="cv-top"><button type="button" class="back" id="cerrar-coches"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Bitácora</button></div>';
-    h += '<h1 class="cv-h1">Coches</h1><section><h2>Automáticos <span class="n num">' + co.length + '</span></h2><p class="lead">Unos 4.000 € en Sevilla y Cádiz, de mejor a peor.</p></section>';
+    h += '<h1 class="cv-h1">Coches</h1>' + ((d.coches_manuales || []).length ? '<nav class="cv-jump" aria-label="Ir a"><button type="button" data-ir-coches="cv-auto">Automáticos <span class="num">' + co.length + '</span></button><button type="button" data-ir-coches="cv-man">Manuales <span class="num">' + (d.coches_manuales || []).length + '</span></button></nav>' : '') + '<section id="cv-auto"><h2>Automáticos <span class="n num">' + co.length + '</span></h2><p class="lead">Unos 4.000 € en Sevilla y Cádiz, de mejor a peor.</p></section>';
     var card = function (c) {
       return '<article class="coche">' + (c.foto ? '<figure class="foto"><img src="' + esc(c.foto) + '" alt="' + esc(c.modelo) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.hidden=true">' + (c.foto_nota ? '<figcaption>' + esc(c.foto_nota) + '</figcaption>' : '') + '</figure>' : '')
         + '<div class="ch"><b>' + esc(c.modelo) + '</b><span class="precio num">' + esc(c.precio) + '</span></div>'
@@ -1053,7 +1057,7 @@
     };
     h += '<div class="stack">' + co.map(card).join('') + '</div>';
     var cm = d.coches_manuales || [];
-    if (cm.length) h += '<section class="manuales"><h2>Manuales <span class="n num">' + cm.length + '</span></h2><p class="lead">Más baratos y con más donde elegir. Mismo precio y kilómetros.</p></section><div class="stack">' + cm.map(card).join('') + '</div>';
+    if (cm.length) h += '<section class="manuales" id="cv-man"><h2>Manuales <span class="n num">' + cm.length + '</span></h2><p class="lead">Más baratos y con más donde elegir. Mismo precio y kilómetros.</p></section><div class="stack">' + cm.map(card).join('') + '</div>';
     if (d.coches_nota) h += '<p class="lead">' + esc(d.coches_nota) + '</p>';
     v.innerHTML = h;
   }
@@ -1072,6 +1076,7 @@
   window.addEventListener('popstate', function () { if (!(history.state && history.state.coches)) ocultarCoches(); });
   document.addEventListener('click', function (e) {
     if (e.target.closest('#abrir-coches')) { e.preventDefault(); abrirCoches(); }
+    else if (e.target.closest('[data-ir-coches]')) { var el = document.getElementById(e.target.closest('[data-ir-coches]').dataset.irCoches); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     else if (e.target.closest('#cerrar-coches')) { if (history.state && history.state.coches) history.back(); else ocultarCoches(); }
   });
   var cvOpener = null;
