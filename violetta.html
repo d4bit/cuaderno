@@ -106,6 +106,14 @@
   var vistos = {}, temp = 1;
   try { vistos = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
   try { temp = +(localStorage.getItem(KEYT) || 1) || 1; } catch (e) {}
+  // Lo que ya habíais visto al hacer la página (se añade una sola vez a cada móvil)
+  var SEED = { v: 1, temporada: 1, hasta: 29 };
+  try {
+    if (+(localStorage.getItem('violetta_seed') || 0) < SEED.v) {
+      for (var i = 1; i <= SEED.hasta; i++) vistos[SEED.temporada + '-' + i] = 1;
+      localStorage.setItem('violetta_seed', String(SEED.v)); localStorage.setItem(KEY, JSON.stringify(vistos));
+    }
+  } catch (e) { for (var j = 1; j <= SEED.hasta; j++) vistos[SEED.temporada + '-' + j] = 1; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(vistos)); localStorage.setItem(KEYT, String(temp)); } catch (e) {} }
   function url(id) { return 'https://www.tiktok.com/@' + CANAL + '/video/' + id; }
   function k(ep) { return ep[0] + '-' + ep[1]; }
