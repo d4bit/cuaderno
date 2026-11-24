@@ -298,6 +298,8 @@
   .coches-btn .ico { background: var(--accent-soft); color: var(--accent); }
   .coches-btn .go { color: var(--accent); }
   #coches-view .cv-top { display: flex; }
+  #coches-view .cv-h1 { font-size: 30px; }
+  #coches-view .manuales { margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
   #coches-view .back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px 0 4px; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
   .coche .foto { margin: -14px -16px 2px; border-radius: 15px 15px 0 0; overflow: hidden; background: var(--surface-2); position: relative; }
   .coche .foto img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
@@ -764,7 +766,8 @@
     var h = '';
     h += '<header><h1>Bitácora de Fátima</h1>' + cat('happy') + '<p class="sub" id="progreso"></p></header>';
     h += '<a class="juego-btn" href="juego.html"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span><span><b>Practicar el cambio</b><small>Juego de caja con billetes y monedas</small></span><span class="go" aria-hidden="true">›</span></a>';
-    if (co.length) h += '<button type="button" class="juego-btn coches-btn" id="abrir-coches"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M5 12h14"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg></span><span><b>Coches automáticos</b><small>' + co.length + ' opciones de unos 4.000 € en Sevilla</small></span><span class="go" aria-hidden="true">›</span></button>';
+    var cmn = (d.coches_manuales || []).length;
+    if (co.length || cmn) h += '<button type="button" class="juego-btn coches-btn" id="abrir-coches"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><path d="M5 12h14"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg></span><span><b>Coches</b><small>' + co.length + ' automáticos y ' + cmn + ' manuales de unos 4.000 €</small></span><span class="go" aria-hidden="true">›</span></button>';
     h += '<section id="ahora" class="ahora" hidden></section>';
     h += '<nav class="menu" aria-label="Secciones"><ul>' + SECTIONS.map(function (s) { return '<li><a href="#' + s[0] + '" data-sec="' + s[0] + '">' + s[1] + ' <span class="c">' + (counts[s[0]] || '') + '</span>' + (s[0] === 'ofertas' ? '<span data-newfor="*"></span>' : '') + '</a></li>'; }).join('') + '</ul></nav>';
 
@@ -1038,8 +1041,8 @@
   function renderCoches() {
     var d = DATA, co = d.coches || [], v = document.getElementById('coches-view');
     var h = '<div class="cv-top"><button type="button" class="back" id="cerrar-coches"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Bitácora</button></div>';
-    h += '<section><h2>Coches automáticos</h2><p class="lead">Unos 4.000 € en Sevilla y Cádiz, de mejor a peor.</p></section>';
-    h += '<div class="stack">' + co.map(function (c) {
+    h += '<h1 class="cv-h1">Coches</h1><section><h2>Automáticos <span class="n num">' + co.length + '</span></h2><p class="lead">Unos 4.000 € en Sevilla y Cádiz, de mejor a peor.</p></section>';
+    var card = function (c) {
       return '<article class="coche">' + (c.foto ? '<figure class="foto"><img src="' + esc(c.foto) + '" alt="' + esc(c.modelo) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.hidden=true">' + (c.foto_nota ? '<figcaption>' + esc(c.foto_nota) + '</figcaption>' : '') + '</figure>' : '')
         + '<div class="ch"><b>' + esc(c.modelo) + '</b><span class="precio num">' + esc(c.precio) + '</span></div>'
         + '<div class="pills"><span class="pill num">' + esc(c.anio) + '</span><span class="pill num">' + esc(c.km) + '</span><span class="pill">' + esc(c.cambio) + '</span>' + (c.recomendado ? '<span class="pill ok">El mejor</span>' : '') + '</div>'
@@ -1047,7 +1050,10 @@
         + (c.pros && c.pros.length ? '<ul class="pc pro">' + c.pros.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
         + (c.contras && c.contras.length ? '<ul class="pc con">' + c.contras.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '')
         + '<a class="btn-ver" href="' + esc(c.enlace) + '" target="_blank" rel="noopener">Ver anuncio</a></article>';
-    }).join('') + '</div>';
+    };
+    h += '<div class="stack">' + co.map(card).join('') + '</div>';
+    var cm = d.coches_manuales || [];
+    if (cm.length) h += '<section class="manuales"><h2>Manuales <span class="n num">' + cm.length + '</span></h2><p class="lead">Más baratos y con más donde elegir. Mismo precio y kilómetros.</p></section><div class="stack">' + cm.map(card).join('') + '</div>';
     if (d.coches_nota) h += '<p class="lead">' + esc(d.coches_nota) + '</p>';
     v.innerHTML = h;
   }
