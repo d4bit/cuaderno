@@ -1061,7 +1061,7 @@
     };
     h += '<div class="stack">' + co.map(card).join('') + '</div>';
     var cm = d.coches_manuales || [];
-    if (cm.length) h += '<section class="manuales" id="cv-man"><h2>Manuales <span class="n num">' + cm.length + '</span></h2><p class="lead">Los 10 mejores, de mejor a peor.</p></section><div class="stack">' + cm.map(card).join('') + '</div>';
+    if (cm.length) h += '<section class="manuales" id="cv-man"><h2>Manuales <span class="n num">' + cm.length + '</span></h2><p class="lead">Los ' + cm.length + ' mejores, de mejor a peor.</p></section><div class="stack">' + cm.map(card).join('') + '</div>';
     if (d.coches_nota) h += '<p class="lead">' + esc(d.coches_nota) + '</p>';
     v.innerHTML = h;
   }
