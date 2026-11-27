@@ -79,22 +79,45 @@
   .tools { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
   .tools button { border: 0; background: none; color: var(--accent); font-weight: 600; min-height: 40px; padding: 0 4px; }
   .foot { color: var(--muted); font-size: 13.5px; text-align: center; margin: 8px 0 0; }
-  /* Reproductor dentro de la página (reproductor oficial de TikTok, sin la barra lateral ni los botones de la web) */
-  .player { position: fixed; inset: 0; z-index: 50; background: #000; color: #fff; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+  /* Reproductor dentro de la página. En el portátil («panorámico») se recorta el vídeo vertical de TikTok a su franja 16:9
+     y se maneja con controles propios por la API postMessage del reproductor oficial; en el móvil, vertical con los controles de TikTok. */
+  .player { position: fixed; inset: 0; z-index: 50; background: #000; color: #fff; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
   .player[hidden] { display: none; }
-  .player .top, .player .bot { display: flex; align-items: center; gap: 8px; padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); }
+  .player .top, .player .bot { display: flex; align-items: center; gap: 10px; padding: 8px max(14px, env(safe-area-inset-right, 0px)) 8px max(14px, env(safe-area-inset-left, 0px)); }
   .player .top { padding-top: max(8px, env(safe-area-inset-top, 0px)); }
   .player .bot { padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); justify-content: space-between; }
   .player .cerrar { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; flex: none; }
-  .player .ttl { min-width: 0; font-family: var(--display); font-weight: 700; font-size: 19px; line-height: 1.1; }
+  .player .ttl { min-width: 0; font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.1; }
   .player .ttl small { display: block; font-family: var(--body); font-weight: 400; font-size: 13.5px; opacity: .7; }
-  .player .pp { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+  .player .pp { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+  .player .pp span { font-size: 13.5px; opacity: .7; margin-right: 2px; }
   .player .pp button { border: 0; min-height: 36px; min-width: 36px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.14); color: #fff; font-weight: 600; }
   .player .pp button[aria-pressed="true"] { background: #fff; color: #000; }
   .player .marco { position: relative; display: grid; place-items: center; min-height: 0; }
-  .player iframe { border: 0; width: 100%; height: 100%; max-width: calc((100dvh - 140px) * 9 / 16 + 1px); background: #000; }
-  .player .bot a { color: rgba(255,255,255,.75); font-size: 14px; text-decoration: underline; min-height: 44px; display: inline-flex; align-items: center; }
+  .player .vert { border: 0; width: 100%; height: 100%; max-width: calc((100dvh - 140px) * 9 / 16 + 1px); background: #000; }
+  .crop { position: relative; overflow: hidden; background: #000; container-type: inline-size; aspect-ratio: 16 / 9;
+    width: min(calc(100vw - 32px), calc((100dvh - 170px) * 16 / 9)); border-radius: 10px; }
+  .player:fullscreen .crop { width: min(100vw, calc((100dvh - 64px) * 16 / 9)); border-radius: 0; }
+  .crop iframe { position: absolute; left: 0; top: 50%; width: 100%; height: 177.78cqw; transform: translateY(-50%); border: 0; pointer-events: none; }
+  .crop .capa { position: absolute; inset: 0; cursor: pointer; display: grid; place-items: center; }
+  .crop .capa .big { width: 84px; height: 84px; border-radius: 50%; background: rgba(0,0,0,.55); display: grid; place-items: center; opacity: 0; transition: opacity .2s; }
+  .crop.pausa .capa .big { opacity: 1; }
+  .crop .sonido { position: absolute; top: 12px; right: 12px; border: 0; border-radius: 999px; padding: 8px 14px; background: rgba(0,0,0,.65); color: #fff; font-weight: 600; display: none; }
+  .crop.mudo .sonido { display: block; }
+  .ctrl { display: none; align-items: center; gap: 12px; padding: 6px max(14px, env(safe-area-inset-left, 0px)); width: min(calc(100vw - 32px), calc((100dvh - 170px) * 16 / 9)); justify-self: center; }
+  .player.pano .ctrl { display: flex; }
+  .player:fullscreen .ctrl { width: min(100vw, calc((100dvh - 64px) * 16 / 9)); }
+  .player:fullscreen .top, .player:fullscreen .bot { display: none; }
+  .player:fullscreen { grid-template-rows: minmax(0, 1fr) auto; }
+  .ctrl button { border: 0; background: none; color: #fff; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; flex: none; }
+  .ctrl button:hover { background: rgba(255,255,255,.12); }
+  .ctrl .tiempo { font-size: 14px; opacity: .85; white-space: nowrap; }
+  .ctrl input[type=range] { flex: 1; min-width: 60px; accent-color: var(--accent); height: 24px; }
+  .ctrl .modo { width: auto; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 600; background: rgba(255,255,255,.12); }
+  .player .bot a, .player .bot .lnk { color: rgba(255,255,255,.75); font-size: 14px; text-decoration: underline; min-height: 44px; display: inline-flex; align-items: center; background: none; border: 0; padding: 0; }
+  .player .bot .izq { display: flex; gap: 18px; align-items: center; }
   .player .hecho { border: 0; min-height: 48px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .player .ayuda { font-size: 13px; opacity: .55; }
   body.viendo { overflow: hidden; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
@@ -111,7 +134,7 @@
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <div class="tools"><span id="cuenta" class="num"></span><button type="button" id="subir">Ir al siguiente sin ver</button></div>
   <ul class="list" id="list"></ul>
-  <p class="foot">Toca la portada o el título y el capítulo se ve aquí mismo, sin salir a TikTok. Marca el círculo cuando lo hayas visto; se guarda en este móvil.</p>
+  <p class="foot">Pulsa la portada o el título y el capítulo se ve aquí mismo, en grande y sin salir a TikTok. Marca el círculo cuando lo hayas visto; se guarda en este móvil.</p>
 </main>
 <div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="p-ttl">
   <div class="top">
@@ -120,8 +143,17 @@
     <div class="pp" id="p-partes"></div>
   </div>
   <div class="marco" id="p-marco"></div>
+  <div class="ctrl" id="p-ctrl">
+    <button type="button" id="c-play" aria-label="Pausa"></button>
+    <span class="tiempo num" id="c-t">0:00</span>
+    <input type="range" id="c-pos" min="0" max="1" step="1" value="0" aria-label="Posición">
+    <span class="tiempo num" id="c-d">0:00</span>
+    <button type="button" id="c-mute" aria-label="Sonido"></button>
+    <button type="button" class="modo" id="c-modo">Vertical</button>
+    <button type="button" id="c-full" aria-label="Pantalla completa"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
   <div class="bot">
-    <a id="p-tiktok" href="#" target="_blank" rel="noopener">Abrir en TikTok</a>
+    <div class="izq"><a id="p-tiktok" href="#" target="_blank" rel="noopener">Abrir en TikTok</a><button type="button" class="lnk" id="p-modo2" hidden>Ver ancho</button><span class="ayuda" id="p-ayuda">Espacio: pausa · ← →: 10 s · F: pantalla completa</span></div>
     <button type="button" class="hecho" id="p-hecho">Visto · Siguiente</button>
   </div>
 </div>
@@ -184,45 +216,113 @@
   }
 
 
-  // ---- Reproductor: el capítulo se ve dentro de la página con el reproductor oficial de TikTok
-  var P = document.getElementById('player'), cur = null, parte = 0;
+  // ---- Reproductor: el capítulo se ve dentro de la página con el reproductor oficial de TikTok.
+  // Panorámico (portátil): se recorta a la franja 16:9 y se maneja con postMessage (play, pause, seekTo, mute, unMute).
+  var P = document.getElementById('player'), cur = null, parte = 0, frame = null;
+  var st = { t: 0, d: 0, playing: false, muted: false, arrastrando: false };
+  var KEYM = 'violetta_modo', KEYPOS = 'violetta_pos';
+  var modo = 'pano';
+  try { modo = localStorage.getItem(KEYM) || (window.innerWidth >= 700 ? 'pano' : 'vert'); } catch (e) { modo = window.innerWidth >= 700 ? 'pano' : 'vert'; }
+  var pos = {}; try { pos = JSON.parse(localStorage.getItem(KEYPOS) || '{}') || {}; } catch (e) {}
+  var ICO = {
+    play: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+    pause: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>',
+    vol: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    mute: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+  };
   function porK(key) { for (var i = 0; i < EPS.length; i++) if (k(EPS[i]) === key) return EPS[i]; return null; }
-  function src(id) { return 'https://www.tiktok.com/player/v1/' + id + '?autoplay=1&music_info=0&description=0&rel=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&timestamp=1&closed_caption=0&native_context_menu=0'; }
+  function src(id) { return 'https://www.tiktok.com/player/v1/' + id + '?autoplay=1&music_info=0&description=0&rel=0&controls=' + (modo === 'pano' ? 0 : 1) + '&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&timestamp=1&closed_caption=0&native_context_menu=0'; }
+  function mmss(x) { x = Math.max(0, Math.floor(x || 0)); var h = Math.floor(x / 3600), m = Math.floor(x / 60) % 60, s2 = x % 60; return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (s2 < 10 ? '0' : '') + s2; }
+  function enviar(type, value) { if (frame && frame.contentWindow) frame.contentWindow.postMessage(value === undefined ? { type: type, 'x-tiktok-player': true } : { type: type, value: value, 'x-tiktok-player': true }, '*'); }
+  function pintarCtrl() {
+    document.getElementById('c-play').innerHTML = st.playing ? ICO.pause : ICO.play;
+    document.getElementById('c-play').setAttribute('aria-label', st.playing ? 'Pausa' : 'Reproducir');
+    document.getElementById('c-mute').innerHTML = st.muted ? ICO.mute : ICO.vol;
+    document.getElementById('c-mute').setAttribute('aria-label', st.muted ? 'Activar sonido' : 'Silenciar');
+    var c = document.querySelector('.crop'); if (c) { c.classList.toggle('pausa', !st.playing); c.classList.toggle('mudo', st.muted); }
+    document.getElementById('c-t').textContent = mmss(st.t); document.getElementById('c-d').textContent = mmss(st.d);
+    var r = document.getElementById('c-pos'); r.max = Math.max(1, Math.floor(st.d)); if (!st.arrastrando) r.value = Math.floor(st.t);
+  }
   function cargar() {
     var id = cur[2][parte];
+    st = { t: 0, d: 0, playing: false, muted: false, arrastrando: false, listo: false };
+    P.classList.toggle('pano', modo === 'pano');
     document.getElementById('p-ttl').innerHTML = 'Capítulo ' + cur[1] + '<small>Temporada ' + cur[0] + (cur[2].length > 1 ? ' · parte ' + (parte + 1) + ' de ' + cur[2].length : '') + '</small>';
-    document.getElementById('p-partes').innerHTML = cur[2].length > 1 ? cur[2].map(function (x, i) { return '<button type="button" data-parte="' + i + '" aria-pressed="' + (i === parte) + '" aria-label="Parte ' + (i + 1) + '">' + (i + 1) + '</button>'; }).join('') : '';
-    document.getElementById('p-marco').innerHTML = '<iframe src="' + src(id) + '" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen title="Capítulo ' + cur[1] + '"></iframe>';
+    document.getElementById('p-partes').innerHTML = cur[2].length > 1 ? '<span>Partes</span>' + cur[2].map(function (x, i) { return '<button type="button" data-parte="' + i + '" aria-pressed="' + (i === parte) + '" aria-label="Parte ' + (i + 1) + '">' + (i + 1) + '</button>'; }).join('') : '';
+    var ifr = '<iframe src="' + src(id) + '" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen title="Capítulo ' + cur[1] + '"' + (modo === 'pano' ? ' tabindex="-1"' : ' class="vert"') + '></iframe>';
+    document.getElementById('p-marco').innerHTML = modo === 'pano'
+      ? '<div class="crop pausa">' + ifr + '<div class="capa" id="c-capa"><span class="big">' + ICO.play.replace('24" height="24"', '40" height="40"') + '</span></div><button type="button" class="sonido" id="c-sonido">Activar sonido</button></div>'
+      : ifr;
+    frame = document.querySelector('#p-marco iframe');
     document.getElementById('p-tiktok').href = url(id);
+    document.getElementById('p-modo2').hidden = modo === 'pano';
+    document.getElementById('p-ayuda').hidden = modo !== 'pano';
     var ult = parte === cur[2].length - 1;
     document.getElementById('p-hecho').textContent = ult ? (vistos[k(cur)] ? 'Siguiente capítulo' : 'Visto · Siguiente') : 'Siguiente parte';
+    pintarCtrl();
   }
   function abrir(ep, p, push) {
     var abierto = !P.hidden; cur = ep; parte = p || 0;
     if (!abierto) { P.hidden = false; document.body.classList.add('viendo'); if (push !== false) try { history.pushState({ violetta: 1 }, ''); } catch (e) {} }
     cargar();
   }
+  function guardarPos(force) {
+    if (!cur || !st.d) return; var id = cur[2][parte];
+    if (st.t > 15 && st.t < st.d - 60) pos[id] = Math.floor(st.t); else delete pos[id];
+    if (force || !guardarPos.t || Date.now() - guardarPos.t > 5000) { guardarPos.t = Date.now(); try { localStorage.setItem(KEYPOS, JSON.stringify(pos)); } catch (e) {} }
+  }
   function cerrar(desdeHistorial) {
     if (P.hidden) return;
-    P.hidden = true; document.body.classList.remove('viendo'); document.getElementById('p-marco').innerHTML = '';
+    guardarPos(true);
+    if (document.fullscreenElement) try { document.exitFullscreen(); } catch (e) {}
+    P.hidden = true; document.body.classList.remove('viendo'); document.getElementById('p-marco').innerHTML = ''; frame = null;
     var key = cur && k(cur); cur = null; render();
     if (key) { var el = document.getElementById('ep-' + key); if (el) el.scrollIntoView({ block: 'center' }); }
     if (!desdeHistorial) try { if (history.state && history.state.violetta) history.back(); } catch (e) {}
   }
   function avanzar() {
     if (!cur) return;
+    guardarPos(true);
     if (parte < cur[2].length - 1) { parte++; cargar(); return; }
     vistos[k(cur)] = 1; save();
     var i = EPS.indexOf(cur), nx = EPS[i + 1];
     if (nx) { if (nx[0] !== temp) temp = nx[0]; save(); render(); abrir(nx, 0); } else cerrar();
   }
+  function alternar() { if (st.playing) enviar('pause'); else enviar('play'); }
+  function saltar(d) { if (!st.d) return; st.t = Math.min(Math.max(0, st.t + d), st.d - 1); enviar('seekTo', st.t); pintarCtrl(); }
+  function pantalla() { try { if (document.fullscreenElement) document.exitFullscreen(); else P.requestFullscreen(); } catch (e) {} }
+  function cambiarModo() { guardarPos(true); modo = modo === 'pano' ? 'vert' : 'pano'; try { localStorage.setItem(KEYM, modo); } catch (e) {} if (cur) cargar(); }
+  document.addEventListener('dblclick', function (e) { if (e.target.closest('#c-capa')) pantalla(); });
   window.addEventListener('popstate', function () { cerrar(true); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrar(); });
-  // Cuando termina una parte, pasa sola a la siguiente parte del mismo capítulo
+  document.addEventListener('keydown', function (e) {
+    if (P.hidden) return;
+    if (e.key === 'Escape' && !document.fullscreenElement) { cerrar(); return; }
+    if (modo !== 'pano' || /INPUT|TEXTAREA/.test((e.target || {}).tagName || '') && e.target.type !== 'range') return;
+    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); alternar(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); saltar(10); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); saltar(-10); }
+    else if (e.key === 'f' || e.key === 'F') pantalla();
+    else if (e.key === 'm') enviar(st.muted ? 'unMute' : 'mute');
+  });
+  var rango = document.getElementById('c-pos');
+  rango.addEventListener('input', function () { st.arrastrando = true; document.getElementById('c-t').textContent = mmss(+rango.value); });
+  rango.addEventListener('change', function () { st.arrastrando = false; st.t = +rango.value; enviar('seekTo', st.t); pintarCtrl(); });
+  // Mensajes del reproductor: listo, estado, tiempo y sonido
   window.addEventListener('message', function (e) {
-    if (!cur || !/tiktok\.com$/.test((e.origin || '').replace(/^https?:\/\//, ''))) return;
+    if (!cur || !frame || e.source !== frame.contentWindow) return;
     var d = e.data; if (typeof d === 'string') try { d = JSON.parse(d); } catch (x) { return; }
-    if (d && d['x-tiktok-player'] && d.type === 'onStateChange' && d.value === 0 && parte < cur[2].length - 1) { parte++; cargar(); }
+    if (!d || !d['x-tiktok-player']) return;
+    if (d.type === 'onPlayerReady') {
+      st.listo = true; enviar('unMute'); enviar('play');
+      var p0 = pos[cur[2][parte]]; if (p0) enviar('seekTo', p0);
+    } else if (d.type === 'onStateChange') {
+      st.playing = d.value === 1 || d.value === 3;
+      if (d.value === 0) { guardarPos(true); if (parte < cur[2].length - 1) { parte++; cargar(); return; } }
+      pintarCtrl();
+    } else if (d.type === 'onCurrentTime' && d.value) {
+      st.t = d.value.currentTime || 0; st.d = d.value.duration || st.d; if (!st.playing) st.playing = true;
+      guardarPos(false); pintarCtrl();
+    } else if (d.type === 'onMute') { st.muted = !!d.value; pintarCtrl(); }
   });
   document.addEventListener('click', function (e) {
     var pl = e.target.closest('[data-play]');
@@ -231,6 +331,11 @@
     var pb = e.target.closest('[data-parte]');
     if (pb) { parte = +pb.dataset.parte; cargar(); return; }
     if (e.target.closest('#p-hecho')) { avanzar(); return; }
+    if (e.target.closest('#c-play') || e.target.closest('#c-capa')) { alternar(); return; }
+    if (e.target.closest('#c-mute')) { enviar(st.muted ? 'unMute' : 'mute'); return; }
+    if (e.target.closest('#c-sonido')) { enviar('unMute'); return; }
+    if (e.target.closest('#c-full')) { pantalla(); return; }
+    if (e.target.closest('#c-modo') || e.target.closest('#p-modo2')) { cambiarModo(); return; }
     var t = e.target.closest('[data-t]');
     if (t) { temp = +t.dataset.t; save(); render(); window.scrollTo({ top: 0 }); return; }
     var c = e.target.closest('.check');
