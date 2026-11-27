@@ -118,6 +118,7 @@
   .player .bot .izq { display: flex; gap: 18px; align-items: center; }
   .player .hecho { border: 0; min-height: 48px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
   .player .ayuda { font-size: 13px; opacity: .55; }
+  .player .bot [hidden] { display: none; }
   body.viendo { overflow: hidden; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
@@ -288,11 +289,12 @@
     var i = EPS.indexOf(cur), nx = EPS[i + 1];
     if (nx) { if (nx[0] !== temp) temp = nx[0]; save(); render(); abrir(nx, 0); } else cerrar();
   }
-  function alternar() { if (st.playing) enviar('pause'); else enviar('play'); }
+  function alternar() { if (st.playing) { enviar('pause'); st.playing = false; st.pausaEn = Date.now(); } else { enviar('play'); st.playing = true; } pintarCtrl(); }
   function saltar(d) { if (!st.d) return; st.t = Math.min(Math.max(0, st.t + d), st.d - 1); enviar('seekTo', st.t); pintarCtrl(); }
   function pantalla() { try { if (document.fullscreenElement) document.exitFullscreen(); else P.requestFullscreen(); } catch (e) {} }
   function cambiarModo() { guardarPos(true); modo = modo === 'pano' ? 'vert' : 'pano'; try { localStorage.setItem(KEYM, modo); } catch (e) {} if (cur) cargar(); }
   document.addEventListener('dblclick', function (e) { if (e.target.closest('#c-capa')) pantalla(); });
+  setInterval(function () { if (cur && st.playing && st.ultimoAvance && Date.now() - st.ultimoAvance > 1500) { st.playing = false; pintarCtrl(); } }, 700);
   window.addEventListener('popstate', function () { cerrar(true); });
   document.addEventListener('keydown', function (e) {
     if (P.hidden) return;
@@ -320,7 +322,9 @@
       if (d.value === 0) { guardarPos(true); if (parte < cur[2].length - 1) { parte++; cargar(); return; } }
       pintarCtrl();
     } else if (d.type === 'onCurrentTime' && d.value) {
-      st.t = d.value.currentTime || 0; st.d = d.value.duration || st.d; if (!st.playing) st.playing = true;
+      var nt = d.value.currentTime || 0;
+      if (nt > st.t + 0.05 && !st.arrastrando && (!st.pausaEn || Date.now() - st.pausaEn > 800)) { st.playing = true; st.ultimoAvance = Date.now(); }
+      st.t = nt; st.d = d.value.duration || st.d;
       guardarPos(false); pintarCtrl();
     } else if (d.type === 'onMute') { st.muted = !!d.value; pintarCtrl(); }
   });
